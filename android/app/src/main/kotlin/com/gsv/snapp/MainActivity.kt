@@ -1,5 +1,7 @@
 package com.gsv.snapp
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 
-class MainActivity: FlutterActivity()
+// FlutterFragmentActivity (non FlutterActivity) è richiesto dal plugin local_auth
+// per mostrare il prompt biometrico di sistema (BiometricPrompt).
+class MainActivity: FlutterFragmentActivity()

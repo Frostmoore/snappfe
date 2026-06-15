@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -57,7 +58,7 @@ class _IssueCard extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(10),
-              child: Text(issue.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+              child: Text(issue.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kNavy, fontWeight: FontWeight.w600, fontSize: 13)),
             ),
           ],
         ),

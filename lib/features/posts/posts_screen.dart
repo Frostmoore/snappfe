@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/util/navigation.dart';
@@ -61,7 +62,7 @@ class _PostCard extends StatelessWidget {
                         avatar: Icon(Icons.lock, size: 16),
                       ),
                     ),
-                  Text(post.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(post.title, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 16)),
                   if (post.excerpt != null) ...[
                     const SizedBox(height: 6),
                     Text(post.excerpt!, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey.shade700)),

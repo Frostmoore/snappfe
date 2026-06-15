@@ -73,24 +73,3 @@ class BiometricService {
 }
 
 final biometricServiceProvider = Provider<BiometricService>((ref) => BiometricService());
-
-/// Stato del lock biometrico all'avvio:
-/// - [locked]   token presente + biometria attiva → serve sblocco;
-/// - [unlocked] sessione utilizzabile (nessuna biometria, oppure sbloccata);
-/// - [skipped]  l'utente ha scelto di proseguire anonimo senza sbloccare
-///              (il token resta, ma la sessione NON viene ripristinata).
-enum BioLockState { locked, unlocked, skipped }
-
-class AppLockController extends StateNotifier<BioLockState> {
-  AppLockController(super.initial);
-
-  void unlock() => state = BioLockState.unlocked;
-  void skip() => state = BioLockState.skipped;
-}
-
-/// Valore iniziale calcolato in main() e iniettato via override del ProviderScope.
-final initialBioLockStateProvider = Provider<BioLockState>((ref) => BioLockState.unlocked);
-
-final appLockProvider = StateNotifierProvider<AppLockController, BioLockState>(
-  (ref) => AppLockController(ref.read(initialBioLockStateProvider)),
-);

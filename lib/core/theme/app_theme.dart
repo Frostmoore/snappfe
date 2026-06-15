@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
+import 'app_colors.dart';
+
 /// Tema moderno dell'app (Material 3).
 class AppTheme {
   static const seed = Color(0xFF0B3D66); // blu SNA
 
   static ThemeData light() {
     final scheme = ColorScheme.fromSeed(seedColor: seed);
+    final base = ThemeData(useMaterial3: true, colorScheme: scheme);
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
@@ -13,7 +16,21 @@ class AppTheme {
       // Ripple più visibile al tocco.
       splashColor: seed.withValues(alpha: 0.20),
       highlightColor: seed.withValues(alpha: 0.10),
-      appBarTheme: const AppBarTheme(centerTitle: false, scrolledUnderElevation: 1),
+      // Titoli navy: AppBar di tutte le schermate + stili "title" del tema.
+      textTheme: base.textTheme.copyWith(
+        titleLarge: base.textTheme.titleLarge?.copyWith(color: kNavy),
+        titleMedium: base.textTheme.titleMedium?.copyWith(color: kNavy),
+        titleSmall: base.textTheme.titleSmall?.copyWith(color: kNavy),
+        headlineSmall: base.textTheme.headlineSmall?.copyWith(color: kNavy),
+        headlineMedium: base.textTheme.headlineMedium?.copyWith(color: kNavy),
+      ),
+      appBarTheme: const AppBarTheme(
+        centerTitle: false,
+        scrolledUnderElevation: 1,
+        backgroundColor: Colors.white,
+        foregroundColor: kNavy,
+        titleTextStyle: TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 20),
+      ),
       cardTheme: CardTheme(
         elevation: 0,
         color: Colors.white,

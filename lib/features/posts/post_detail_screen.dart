@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -25,7 +26,7 @@ class PostDetailScreen extends ConsumerWidget {
             if (p.cover != null)
               ClipRRect(borderRadius: BorderRadius.circular(12), child: CachedNetworkImage(imageUrl: p.cover!)),
             const SizedBox(height: 16),
-            Text(p.title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            Text(p.title, style: const TextStyle(color: kNavy, fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             Text(stripHtml(p.body), style: const TextStyle(fontSize: 16, height: 1.5)),
             if (p.externalUrl != null) ...[

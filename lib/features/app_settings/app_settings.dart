@@ -8,8 +8,16 @@ class AppSettings {
   final String? headerVideo;
   final String? logo;
   final String? primaryColor;
+  final bool reservedButtonEnabled;
 
-  AppSettings({this.appName, this.headerImage, this.headerVideo, this.logo, this.primaryColor});
+  AppSettings({
+    this.appName,
+    this.headerImage,
+    this.headerVideo,
+    this.logo,
+    this.primaryColor,
+    this.reservedButtonEnabled = false,
+  });
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
         appName: j['app_name'] as String?,
@@ -17,6 +25,7 @@ class AppSettings {
         headerVideo: j['header_video'] as String?,
         logo: j['logo'] as String?,
         primaryColor: j['primary_color'] as String?,
+        reservedButtonEnabled: (j['reserved_button_enabled'] ?? false) as bool,
       );
 }
 

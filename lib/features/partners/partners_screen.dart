@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -57,7 +58,7 @@ class _PartnerCard extends StatelessWidget {
                     : const Icon(Icons.business, size: 40),
               ),
               const SizedBox(height: 8),
-              Text(partner.name, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+              Text(partner.name, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kNavy, fontWeight: FontWeight.w600, fontSize: 13)),
             ],
           ),
         ),

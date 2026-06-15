@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/widgets/async_value_widget.dart';
@@ -50,7 +51,7 @@ class _MemberNode extends StatelessWidget {
     }
     return ExpansionTile(
       leading: _avatar(),
-      title: Text(member.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+      title: Text(member.name, style: const TextStyle(color: kNavy, fontWeight: FontWeight.w600)),
       subtitle: member.role != null ? Text(member.role!) : null,
       childrenPadding: const EdgeInsets.only(left: 16),
       children: member.children.map((c) => _MemberNode(member: c)).toList(),

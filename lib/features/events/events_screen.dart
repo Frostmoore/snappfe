@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -54,7 +55,7 @@ class _EventCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(event.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(event.title, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 6),
                   if (event.startsAt != null)
                     Row(children: [

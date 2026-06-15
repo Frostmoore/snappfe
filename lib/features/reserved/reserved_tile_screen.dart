@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -31,7 +32,7 @@ class ReservedTileScreen extends ConsumerWidget {
                 for (final section in tile.sections) ...[
                   Padding(
                     padding: const EdgeInsets.only(top: 8, bottom: 8),
-                    child: Text(section.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    child: Text(section.title, style: const TextStyle(color: kNavy, fontSize: 18, fontWeight: FontWeight.bold)),
                   ),
                   if (section.elements.isEmpty)
                     Text('—', style: TextStyle(color: Colors.grey.shade500))
@@ -68,7 +69,7 @@ class _ElementCard extends StatelessWidget {
       child: ListTile(
         leading: Icon(hasFile ? Icons.download_rounded : Icons.description_outlined,
             color: Theme.of(context).colorScheme.primary),
-        title: Text(element.title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(element.title, style: const TextStyle(color: kNavy, fontWeight: FontWeight.w600)),
         subtitle: (element.description != null && element.description!.isNotEmpty)
             ? Text(element.description!)
             : null,

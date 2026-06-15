@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -67,7 +68,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
           const Text(
             'Verifica la tua email',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            style: TextStyle(color: kNavy, fontSize: 22, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Text(

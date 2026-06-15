@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/biometric_service.dart';
 import '../../core/network/api_client.dart';
+import '../../core/network/api_exception.dart';
 import '../../core/providers.dart';
 import '../../core/storage/token_storage.dart';
 
@@ -127,17 +128,22 @@ class AuthController extends AsyncNotifier<User?> {
     final token = await ref.read(tokenStorageProvider).read();
     if (token == null) return null;
 
-    // Gate biometrico: con un token presente e la biometria attiva, la sessione
-    // viene ripristinata SOLO dopo lo sblocco. Finché `locked`/`skipped`, l'app
-    // resta anonima pur conservando il token in storage sicuro.
-    if (ref.watch(appLockProvider) != BioLockState.unlocked) {
-      return null;
-    }
-
+    // La sessione viene ripristinata normalmente all'avvio. La biometria NON
+    // blocca tutta l'app: protegge solo l'area riservata (vedi AccountGate).
     try {
       return await ref.read(authRepositoryProvider).me();
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        // Token non valido (es. revocato/scaduto, o di un altro backend):
+        // pulisci la sessione E disattiva la biometria — non ha senso bloccare
+        // una sessione inesistente.
+        await ref.read(tokenStorageProvider).clear();
+        await ref.read(biometricServiceProvider).reset();
+      }
+      // Altri errori HTTP: non cancellare il token.
+      return null;
     } catch (_) {
-      await ref.read(tokenStorageProvider).clear();
+      // Errore di rete/offline: NON cancellare il token, si riproverà.
       return null;
     }
   }
@@ -168,7 +174,6 @@ class AuthController extends AsyncNotifier<User?> {
     await ref.read(authRepositoryProvider).logout();
     // Senza sessione non deve restare attiva alcuna preferenza biometrica.
     await ref.read(biometricServiceProvider).reset();
-    ref.read(appLockProvider.notifier).unlock();
     state = const AsyncData(null);
   }
 

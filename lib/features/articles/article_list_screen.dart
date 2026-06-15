@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/util/navigation.dart';
 import '../../core/widgets/async_value_widget.dart';
@@ -163,7 +164,7 @@ class _ArticleCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(article.title, style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    Text(article.title, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis),
                     if (article.excerpt != null) ...[
                       const SizedBox(height: 6),
                       Text(article.excerpt!, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),

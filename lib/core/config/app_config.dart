@@ -1,12 +1,11 @@
 /// Configurazione globale dell'app.
 class AppConfig {
-  /// Base URL delle API del backend.
-  /// - Android emulator: usa 10.0.2.2 (alias dell'host).
-  /// - Device fisico: sostituisci con l'IP del PC (es. http://192.168.x.x:8000).
-  /// Override a build-time: --dart-define=API_BASE_URL=...
+  /// Base URL delle API del backend. Default: **produzione** (snappanel.it).
+  /// Per puntare al backend locale in dev:
+  ///   --dart-define=API_BASE_URL=http://10.0.2.2:8000/api/v1  (emulatore Android)
   static const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://10.0.2.2:8000/api/v1',
+    defaultValue: 'https://snappanel.it/api/v1',
   );
 
   /// Schema deep-link dell'app (vedi backend Appendice A).

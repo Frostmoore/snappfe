@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -25,7 +26,7 @@ class ArticleDetailScreen extends ConsumerWidget {
             if (a.image != null)
               ClipRRect(borderRadius: BorderRadius.circular(12), child: CachedNetworkImage(imageUrl: a.image!)),
             const SizedBox(height: 16),
-            Text(a.title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            Text(a.title, style: const TextStyle(color: kNavy, fontSize: 22, fontWeight: FontWeight.bold)),
             if (a.author != null) ...[
               const SizedBox(height: 6),
               Text('di ${a.author}', style: TextStyle(color: Colors.grey.shade600)),

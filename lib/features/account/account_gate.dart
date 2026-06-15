@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/biometric_service.dart';
@@ -107,7 +108,7 @@ class _AccountGateState extends ConsumerState<AccountGate> {
       Icon(Icons.fingerprint, size: 80, color: cs.primary),
       const SizedBox(height: 18),
       const Text('Area riservata protetta',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          style: TextStyle(color: kNavy, fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
       const SizedBox(height: 10),
       Text('Sblocca con impronta o volto per accedere al tuo account.',
           textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade700, height: 1.5)),
@@ -136,7 +137,7 @@ class _AccountGateState extends ConsumerState<AccountGate> {
       const Icon(Icons.lock_outline, size: 64),
       const SizedBox(height: 16),
       const Text('Conferma la tua identità',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          style: TextStyle(color: kNavy, fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
       const SizedBox(height: 16),
       TextField(
         readOnly: true,

@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../core/theme/app_colors.dart';
 import '../../core/util/color.dart';
 import '../../core/util/navigation.dart';
 import '../../core/widgets/async_value_widget.dart';
@@ -133,6 +134,8 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
             const SliverToBoxAdapter(child: _SocialCircles()),
+            if (settings.valueOrNull?.reservedButtonEnabled ?? false)
+              const SliverToBoxAdapter(child: _ReservedButton()),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -180,6 +183,122 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
+/// Colore del bordo sinistro che appare al tap.
+const Color _cardActiveBorder = Color(0xFF4594F5);
+
+
+/// Card della home: angoli vivi, ombra sotto, e bordo sinistro #4594f5 che
+/// compare al tap (come il ripple) per un istante, prima di navigare alla pagina.
+class _HomeCard extends StatefulWidget {
+  final String route;
+  final Widget child;
+  const _HomeCard({required this.route, required this.child});
+
+  @override
+  State<_HomeCard> createState() => _HomeCardState();
+}
+
+class _HomeCardState extends State<_HomeCard> {
+  bool _active = false;
+
+  Future<void> _onTap() async {
+    setState(() => _active = true);
+    // Lascia vedere bordo + ripple, poi naviga.
+    await Future.delayed(const Duration(milliseconds: 180));
+    if (!mounted) return;
+    context.push(widget.route);
+    setState(() => _active = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 3, // un po' di ombra sotto
+      shadowColor: Colors.black54,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero), // angoli vivi
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: _onTap,
+        child: Stack(
+          children: [
+            // Al tap il contenuto scorre a destra per fare spazio al bordino.
+            AnimatedPadding(
+              duration: const Duration(milliseconds: 120),
+              padding: EdgeInsets.only(left: _active ? 4 : 0),
+              child: widget.child,
+            ),
+            // Il bordino blu cresce nello spazio liberato a sinistra.
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 120),
+                width: _active ? 4 : 0,
+                color: _cardActiveBorder,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Bottone "Area Riservata" (attivabile dal pannello): bianco con bordo/testo
+/// rossi; al tap inverte i colori (rosso pieno, testo bianco) + ripple, poi naviga.
+class _ReservedButton extends StatefulWidget {
+  const _ReservedButton();
+
+  @override
+  State<_ReservedButton> createState() => _ReservedButtonState();
+}
+
+class _ReservedButtonState extends State<_ReservedButton> {
+  bool _active = false;
+
+  Future<void> _onTap() async {
+    setState(() => _active = true);
+    await Future.delayed(const Duration(milliseconds: 180));
+    if (!mounted) return;
+    context.push('/account');
+    setState(() => _active = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      child: Material(
+        color: Colors.transparent,
+        shape: const RoundedRectangleBorder(side: BorderSide(color: kBrandRed, width: 2)),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: _onTap,
+          splashColor: Colors.white24,
+          highlightColor: Colors.white10,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            width: double.infinity,
+            height: 52,
+            color: _active ? kBrandRed : Colors.white,
+            alignment: Alignment.center,
+            child: Text(
+              'Area Riservata',
+              style: TextStyle(
+                color: _active ? Colors.white : kBrandRed,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _WideCard extends StatelessWidget {
   final HomeSection section;
   const _WideCard({required this.section});
@@ -187,40 +306,38 @@ class _WideCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = parseHexColor(section.backgroundColor) ?? _defaultColor(section.route);
-    return Card(
-      child: InkWell(
-        onTap: () => pushWithRipple(context, section.route),
-        child: SizedBox(
-          height: 104,
-          child: Row(
-            children: [
-              Container(
-                width: 96,
-                color: color.withValues(alpha: 0.12),
-                child: Center(child: _SectionIcon(section, size: 36)),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(section.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                      if (section.subtitle != null) ...[
-                        const SizedBox(height: 4),
-                        Text(section.subtitle!, style: TextStyle(color: Colors.grey.shade600)),
-                      ],
+    return _HomeCard(
+      route: section.route,
+      child: SizedBox(
+        height: 104,
+        child: Row(
+          children: [
+            Container(
+              width: 96,
+              color: color.withValues(alpha: 0.12),
+              child: Center(child: _SectionIcon(section, size: 36)),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(section.title, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 18)),
+                    if (section.subtitle != null) ...[
+                      const SizedBox(height: 4),
+                      Text(section.subtitle!, style: TextStyle(color: Colors.grey.shade600)),
                     ],
-                  ),
+                  ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Icon(Icons.chevron_right, color: Colors.grey.shade400),
-              ),
-            ],
-          ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Icon(Icons.chevron_right, color: Colors.grey.shade400),
+            ),
+          ],
         ),
       ),
     );
@@ -235,24 +352,22 @@ class _HalfCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: InkWell(
-        onTap: () => pushWithRipple(context, section.route),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _SectionIcon(section, size: 26),
-              const SizedBox(height: 12),
-              Text(
-                section.title,
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-                softWrap: true,
-              ),
-            ],
-          ),
+    return _HomeCard(
+      route: section.route,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _SectionIcon(section, size: 26),
+            const SizedBox(height: 12),
+            Text(
+              section.title,
+              style: const TextStyle(color: kNavy, fontWeight: FontWeight.w600, fontSize: 15),
+              softWrap: true,
+            ),
+          ],
         ),
       ),
     );
@@ -411,28 +526,60 @@ class _SocialCircles extends ConsumerWidget {
       data: (items) {
         if (items.isEmpty) return const SizedBox.shrink();
         return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-          child: Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 18,
-            runSpacing: 18,
-            children: items.map((l) {
-              final bg = parseHexColor(l.backgroundColor) ??
-                  (l.icon == null ? _brand(l.platform).withValues(alpha: 0.12) : Colors.grey.shade100);
-              return Material(
-                color: bg,
-                shape: const CircleBorder(),
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: () => launchUrl(Uri.parse(l.url), mode: LaunchMode.externalApplication),
-                  child: SizedBox(
-                    width: 54,
-                    height: 54,
-                    child: Center(child: _inner(l)),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Card(
+            elevation: 3,
+            shadowColor: Colors.black54,
+            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero), // angoli vivi
+            clipBehavior: Clip.antiAlias,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(width: 34, height: 3, color: kBrandOrange),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'LINK SOCIAL',
+                        style: TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1.5),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(width: 34, height: 3, color: kBrandOrange),
+                    ],
                   ),
-                ),
-              );
-            }).toList(),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 16,
+                    runSpacing: 16,
+                    children: items.map((l) {
+                      final bg = parseHexColor(l.backgroundColor) ??
+                          (l.icon == null ? _brand(l.platform).withValues(alpha: 0.12) : Colors.grey.shade100);
+                      return Material(
+                        color: bg,
+                        shape: const CircleBorder(),
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          onTap: () async {
+                            // Lascia vedere il ripple prima di aprire l'app esterna.
+                            await Future.delayed(const Duration(milliseconds: 160));
+                            launchUrl(Uri.parse(l.url), mode: LaunchMode.externalApplication);
+                          },
+                          child: SizedBox(
+                            width: 54,
+                            height: 54,
+                            child: Center(child: _inner(l)),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
           ),
         );
       },
@@ -455,7 +602,7 @@ class _PartnersStrip extends ConsumerWidget {
           children: [
             Row(
               children: [
-                const Text('Convenzioni & Partners', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text('Convenzioni & Partners', style: TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 16)),
                 const Spacer(),
                 TextButton(onPressed: () => context.push('/partners'), child: const Text('Vedi tutti')),
               ],

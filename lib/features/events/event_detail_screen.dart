@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:add_2_calendar/add_2_calendar.dart' as cal;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -47,7 +48,7 @@ class EventDetailScreen extends ConsumerWidget {
             if (e.cover != null)
               ClipRRect(borderRadius: BorderRadius.circular(12), child: CachedNetworkImage(imageUrl: e.cover!)),
             const SizedBox(height: 16),
-            Text(e.title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            Text(e.title, style: const TextStyle(color: kNavy, fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             if (e.startsAt != null)
               Row(children: [const Icon(Icons.event), const SizedBox(width: 8), Expanded(child: Text(df.format(e.startsAt!.toLocal())))]),

@@ -31,7 +31,7 @@ class AppTheme {
         foregroundColor: kNavy,
         titleTextStyle: TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 20),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
         color: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

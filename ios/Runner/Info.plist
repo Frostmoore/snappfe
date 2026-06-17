@@ -47,5 +47,20 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Google Sign-In: client iOS del progetto Google Cloud -->
+	<key>GIDClientID</key>
+	<string>572671763940-lb5il1c26fac5crhnvrk4fhnm7i0q7ah.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<!-- reversed client ID dell'iOS client (per il redirect del login Google) -->
+				<string>com.googleusercontent.apps.572671763940-lb5il1c26fac5crhnvrk4fhnm7i0q7ah</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

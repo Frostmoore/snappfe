@@ -11,10 +11,19 @@ class AppConfig {
   /// Schema deep-link dell'app (vedi backend Appendice A).
   static const String deepLinkScheme = 'snapp';
 
-  /// Login social attivo solo quando configurate le credenziali Google/Apple.
+  /// Login social attivo (Google reale; Apple in arrivo). Si può disattivare
+  /// per tornare al flusso mock con --dart-define=SOCIAL_ENABLED=false.
   static const bool socialLoginEnabled = bool.fromEnvironment(
     'SOCIAL_ENABLED',
-    defaultValue: false,
+    defaultValue: true,
+  );
+
+  /// "Server client ID" Google = il **Web** Client ID del progetto Google Cloud.
+  /// È l'audience dell'id_token: il backend verifica che combaci. Non è un segreto
+  /// (i Client ID sono pubblici); il secret resta solo lato server nel .env.
+  static const String googleServerClientId = String.fromEnvironment(
+    'GOOGLE_SERVER_CLIENT_ID',
+    defaultValue: '572671763940-jgf9qtmebnkg1tj5s4lds73h5n626s01.apps.googleusercontent.com',
   );
 
   /// Push attive solo quando configurato Firebase (google-services.json).

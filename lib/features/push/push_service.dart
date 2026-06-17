@@ -29,6 +29,18 @@ class PushService {
     await OneSignal.login(externalId);
   }
 
+  /// Imposta (o rimuove) il tag `wp_role` sul device: serve a OneSignal per i
+  /// segmenti/filtri per ruolo WordPress. Il targeting per ruolo dal pannello
+  /// usa comunque l'external_id lato server; il tag abilita i segmenti OneSignal.
+  static void setRole(String? wpRole) {
+    if (!_enabled) return;
+    if (wpRole != null && wpRole.isNotEmpty) {
+      OneSignal.User.addTags({'wp_role': wpRole});
+    } else {
+      OneSignal.User.removeTag('wp_role');
+    }
+  }
+
   /// Sgancia l'utente al logout: il device non riceve più push mirate all'utente.
   static Future<void> logout() async {
     if (!_enabled) return;

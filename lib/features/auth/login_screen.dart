@@ -67,20 +67,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
     try {
       String token;
+      String? name;
       if (AppConfig.socialLoginEnabled) {
         // Flusso reale: l'app ottiene il token nativamente dal provider.
         final svc = SocialAuthService();
-        final t = provider == 'google' ? await svc.google() : await svc.apple();
-        if (t == null) {
+        final res = provider == 'google' ? await svc.google() : await svc.apple();
+        if (res == null) {
           if (mounted) setState(() => _busy = false); // annullato dall'utente
           return;
         }
-        token = t;
+        token = res.token;
+        name = res.name;
       } else {
         // Flusso mock (dev): il backend crea/accede a un utente mock.
         token = 'mock';
       }
-      await ref.read(authControllerProvider.notifier).socialLogin(provider, token);
+      await ref.read(authControllerProvider.notifier).socialLogin(provider, token, name: name);
       await _afterAuth();
     } catch (e) {
       if (mounted) {

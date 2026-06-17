@@ -73,8 +73,11 @@ class AuthRepository {
     return _authResult(data);
   }
 
-  Future<User> socialLogin(String provider, String token) async {
-    final data = await api.postData('/auth/social/$provider', body: {'token': token});
+  Future<User> socialLogin(String provider, String token, {String? name}) async {
+    final data = await api.postData('/auth/social/$provider', body: {
+      'token': token,
+      if (name != null && name.isNotEmpty) 'name': name,
+    });
     return _authResult(data);
   }
 
@@ -160,9 +163,9 @@ class AuthController extends AsyncNotifier<User?> {
     );
   }
 
-  Future<void> socialLogin(String provider, String token) async {
+  Future<void> socialLogin(String provider, String token, {String? name}) async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() => ref.read(authRepositoryProvider).socialLogin(provider, token));
+    state = await AsyncValue.guard(() => ref.read(authRepositoryProvider).socialLogin(provider, token, name: name));
   }
 
   Future<void> snaLogin(String identifier, String password) async {

@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
@@ -23,9 +25,19 @@ class SocialAuthService {
   }
 
   /// Ritorna l'identity token Apple da inviare al backend.
+  ///
+  /// Su iOS è nativo (audience = bundle id). Su Android usa il flusso WEB:
+  /// passa il Services ID + il Return URL registrato su Apple, che rimbalza i
+  /// dati nell'app (audience = Services ID).
   Future<String?> apple() async {
     final credential = await SignInWithApple.getAppleIDCredential(
       scopes: const [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
+      webAuthenticationOptions: Platform.isIOS || Platform.isMacOS
+          ? null
+          : WebAuthenticationOptions(
+              clientId: AppConfig.appleServicesId,
+              redirectUri: Uri.parse(AppConfig.appleRedirectUri),
+            ),
     );
     return credential.identityToken;
   }

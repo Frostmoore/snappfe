@@ -26,6 +26,20 @@ class AppConfig {
     defaultValue: '572671763940-jgf9qtmebnkg1tj5s4lds73h5n626s01.apps.googleusercontent.com',
   );
 
+  /// Apple Services ID = client_id del flusso WEB (usato su Android). È anche
+  /// l'audience del token Apple in quel flusso, verificata dal backend.
+  static const String appleServicesId = String.fromEnvironment(
+    'APPLE_SERVICES_ID',
+    defaultValue: 'com.gsv.snapp.signin',
+  );
+
+  /// Return URL registrato nel Services ID Apple: il backend rimbalza i dati
+  /// nell'app. DEVE coincidere con quello registrato su Apple (sempre prod).
+  static const String appleRedirectUri = String.fromEnvironment(
+    'APPLE_REDIRECT_URI',
+    defaultValue: 'https://snappanel.it/api/v1/auth/apple/callback',
+  );
+
   /// Push attive solo quando configurato Firebase (google-services.json).
   static const bool pushEnabled = bool.fromEnvironment(
     'PUSH_ENABLED',

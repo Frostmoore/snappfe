@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/config/app_config.dart';
+import '../account/sna_link_prompt.dart';
 import 'auth.dart';
 import 'biometric_optin.dart';
 import 'social_auth_service.dart';
@@ -45,6 +46,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
       // Primo accesso riuscito: proponi (una volta) lo sblocco biometrico.
       await offerBiometricOptIn(context, ref);
+      // Se l'email combacia con un account SNA, proponi il collegamento (una volta).
+      if (mounted) await maybeOfferSnaLink(context, ref);
       if (mounted) context.go('/');
     } else {
       setState(() => _busy = false);

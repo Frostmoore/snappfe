@@ -113,6 +113,23 @@ class AuthRepository {
     await api.postData('/auth/password/confirm', body: {'password': password});
   }
 
+  /// Proposta di collegamento SNA per match email (una volta sola, lato server).
+  Future<({bool available, String? levelLabel})> snaLinkSuggestion() async {
+    final data = await api.getData('/account-links/suggestion');
+    final m = Map<String, dynamic>.from(data as Map);
+    return (available: (m['available'] ?? false) as bool, levelLabel: m['level_label'] as String?);
+  }
+
+  /// Accetta la proposta: collega per email (l'email è già verificata).
+  Future<void> acceptSnaLink() async {
+    await api.postData('/account-links/suggestion/accept');
+  }
+
+  /// Rifiuta la proposta: non verrà più riproposta.
+  Future<void> dismissSnaLink() async {
+    await api.postData('/account-links/suggestion/dismiss');
+  }
+
   Future<void> logout() async {
     try {
       await api.postData('/auth/logout');

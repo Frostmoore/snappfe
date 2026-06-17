@@ -40,11 +40,10 @@ class AppConfig {
     defaultValue: 'https://snappanel.it/api/v1/auth/apple/callback',
   );
 
-  /// OneSignal App ID. Le push si attivano quando è valorizzato (qui o via
-  /// --dart-define=ONESIGNAL_APP_ID=...). Non è un segreto (la REST API Key,
-  /// quella sì segreta, resta SOLO lato backend nel .env).
+  /// OneSignal App ID. Le push si attivano quando è valorizzato. Non è un segreto
+  /// (sta nell'app); la REST API Key, quella sì segreta, resta SOLO lato backend.
   static const String oneSignalAppId = String.fromEnvironment(
     'ONESIGNAL_APP_ID',
-    defaultValue: '',
+    defaultValue: 'c337e6cf-fca9-48ca-a23c-ba88e07eb15b',
   );
 }

@@ -43,3 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firma release Android — NON committare MAI keystore e password
+/android/key.properties
+**/*.jks
+**/*.keystore

@@ -1,4 +1,5 @@
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/config/app_config.dart';
 import '../../core/router/app_router.dart';
@@ -34,14 +35,21 @@ class PushService {
     await OneSignal.logout();
   }
 
-  /// Al tap sulla notifica instrada il deep-link (`data.deep_link`) nel router.
-  static void _onClick(OSNotificationClickEvent event) {
+  /// Al tap sulla notifica gestisce il campo `data.deep_link`:
+  /// - http/https → apre il **link esterno** nel browser;
+  /// - altrimenti → **deep-link interno**, naviga nel router (accetta sia
+  ///   "/articles/5" sia "snapp://articles/5").
+  static Future<void> _onClick(OSNotificationClickEvent event) async {
     final raw = event.notification.additionalData?['deep_link'];
     if (raw is! String || raw.isEmpty) return;
 
-    // Accetta sia un path ("/articles/5") sia uno schema ("snapp://articles/5").
-    var path = raw;
     final uri = Uri.tryParse(raw);
+    if (uri != null && (uri.scheme == 'http' || uri.scheme == 'https')) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    var path = raw;
     if (uri != null && uri.hasScheme) {
       path = uri.path.isEmpty ? '/' : uri.path;
       if (uri.hasQuery) path += '?${uri.query}';

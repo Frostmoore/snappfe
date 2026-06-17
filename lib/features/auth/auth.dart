@@ -5,6 +5,7 @@ import '../../core/network/api_client.dart';
 import '../../core/network/api_exception.dart';
 import '../../core/providers.dart';
 import '../../core/storage/token_storage.dart';
+import '../push/push_service.dart';
 
 /// Utente autenticato.
 class User {
@@ -134,7 +135,9 @@ class AuthController extends AsyncNotifier<User?> {
     // La sessione viene ripristinata normalmente all'avvio. La biometria NON
     // blocca tutta l'app: protegge solo l'area riservata (vedi AccountGate).
     try {
-      return await ref.read(authRepositoryProvider).me();
+      final user = await ref.read(authRepositoryProvider).me();
+      await PushService.login(user.id.toString()); // identità OneSignal
+      return user;
     } on ApiException catch (e) {
       if (e.statusCode == 401) {
         // Token non valido (es. revocato/scaduto, o di un altro backend):
@@ -151,9 +154,16 @@ class AuthController extends AsyncNotifier<User?> {
     }
   }
 
+  /// Allinea l'identità push (OneSignal) all'utente corrente dopo ogni auth.
+  Future<void> _syncPush() async {
+    final user = state.value;
+    if (user != null) await PushService.login(user.id.toString());
+  }
+
   Future<void> login(String email, String password) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() => ref.read(authRepositoryProvider).login(email, password));
+    await _syncPush();
   }
 
   Future<void> register(String name, String email, String password, String passwordConfirmation) async {
@@ -161,22 +171,26 @@ class AuthController extends AsyncNotifier<User?> {
     state = await AsyncValue.guard(
       () => ref.read(authRepositoryProvider).register(name, email, password, passwordConfirmation),
     );
+    await _syncPush();
   }
 
   Future<void> socialLogin(String provider, String token, {String? name}) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() => ref.read(authRepositoryProvider).socialLogin(provider, token, name: name));
+    await _syncPush();
   }
 
   Future<void> snaLogin(String identifier, String password) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() => ref.read(authRepositoryProvider).snaLogin(identifier, password));
+    await _syncPush();
   }
 
   Future<void> logout() async {
     await ref.read(authRepositoryProvider).logout();
     // Senza sessione non deve restare attiva alcuna preferenza biometrica.
     await ref.read(biometricServiceProvider).reset();
+    await PushService.logout(); // sgancia l'identità OneSignal
     state = const AsyncData(null);
   }
 

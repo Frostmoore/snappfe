@@ -40,9 +40,11 @@ class AppConfig {
     defaultValue: 'https://snappanel.it/api/v1/auth/apple/callback',
   );
 
-  /// Push attive solo quando configurato Firebase (google-services.json).
-  static const bool pushEnabled = bool.fromEnvironment(
-    'PUSH_ENABLED',
-    defaultValue: false,
+  /// OneSignal App ID. Le push si attivano quando è valorizzato (qui o via
+  /// --dart-define=ONESIGNAL_APP_ID=...). Non è un segreto (la REST API Key,
+  /// quella sì segreta, resta SOLO lato backend nel .env).
+  static const String oneSignalAppId = String.fromEnvironment(
+    'ONESIGNAL_APP_ID',
+    defaultValue: '',
   );
 }

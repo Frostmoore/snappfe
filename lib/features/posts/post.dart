@@ -13,6 +13,7 @@ class Post {
   final String? externalUrl;
   final String? publishedAt;
   final String? body;
+  final bool isReserved; // destinato a un pubblico ristretto (non a tutti)
 
   Post({
     required this.id,
@@ -25,9 +26,8 @@ class Post {
     this.externalUrl,
     this.publishedAt,
     this.body,
+    this.isReserved = false,
   });
-
-  bool get isReserved => minLevel != null && minLevel != 'public';
 
   factory Post.fromJson(Map<String, dynamic> j) => Post(
         id: j['id'] as int,
@@ -40,6 +40,7 @@ class Post {
         externalUrl: j['external_url'] as String?,
         publishedAt: j['published_at'] as String?,
         body: j['body'] as String?,
+        isReserved: (j['is_reserved'] as bool?) ?? (j['min_level'] != null && j['min_level'] != 'public'),
       );
 }
 

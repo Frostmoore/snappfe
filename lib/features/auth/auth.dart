@@ -130,6 +130,22 @@ class AuthRepository {
     await api.postData('/account-links/suggestion/dismiss');
   }
 
+  /// Reset password SNA: invia un codice all'email (se registrata su SNA).
+  Future<void> snaForgotPassword(String email) async {
+    await api.postData('/auth/sna/password/forgot', body: {'email': email});
+  }
+
+  /// Reset password SNA: verifica il codice e imposta la nuova password.
+  /// Lancia ApiException (422) se il codice è errato/scaduto.
+  Future<void> snaResetPassword(String email, String code, String password, String passwordConfirmation) async {
+    await api.postData('/auth/sna/password/reset', body: {
+      'email': email,
+      'code': code,
+      'password': password,
+      'password_confirmation': passwordConfirmation,
+    });
+  }
+
   Future<void> logout() async {
     try {
       await api.postData('/auth/logout');

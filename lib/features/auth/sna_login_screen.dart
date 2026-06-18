@@ -109,6 +109,10 @@ class _SnaLoginScreenState extends ConsumerState<SnaLoginScreen> {
                   : const Text('Accedi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             ),
           ),
+          TextButton(
+            onPressed: _busy ? null : () => context.push('/sna-reset'),
+            child: const Text('Password SNA dimenticata?'),
+          ),
         ],
       ),
     );

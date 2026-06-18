@@ -7,6 +7,7 @@ import '../../features/articles/article_list_screen.dart';
 import '../../features/auth/login_screen.dart';
 import '../../features/auth/register_screen.dart';
 import '../../features/auth/sna_login_screen.dart';
+import '../../features/auth/sna_password_reset_screen.dart';
 import '../../features/auth/verify_email_screen.dart';
 import '../../features/events/event_detail_screen.dart';
 import '../../features/events/events_screen.dart';
@@ -29,6 +30,7 @@ final goRouter = GoRouter(
     GoRoute(path: '/register', builder: (c, s) => const RegisterScreen()),
     GoRoute(path: '/verify-email', builder: (c, s) => const VerifyEmailScreen()),
     GoRoute(path: '/sna-login', builder: (c, s) => const SnaLoginScreen()),
+    GoRoute(path: '/sna-reset', builder: (c, s) => const SnaPasswordResetScreen()),
     GoRoute(path: '/account', builder: (c, s) => const AccountGate()),
     GoRoute(path: '/account/settings', builder: (c, s) => const AccountLinkScreen()),
     GoRoute(path: '/reserved/tiles/:id', builder: (c, s) => ReservedTileScreen(id: _id(s))),

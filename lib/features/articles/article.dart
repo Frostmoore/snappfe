@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/providers.dart';
+import '../../core/util/html.dart';
 
 class Article {
   final int id;
@@ -28,11 +29,11 @@ class Article {
 
   factory Article.fromJson(Map<String, dynamic> j) => Article(
         id: j['id'] as int,
-        title: (j['title'] ?? '') as String,
-        excerpt: j['excerpt'] as String?,
+        title: unescapeHtml((j['title'] ?? '') as String),
+        excerpt: j['excerpt'] != null ? stripHtml(j['excerpt'] as String) : null,
         image: j['image'] as String?,
         link: j['link'] as String?,
-        author: j['author'] as String?,
+        author: j['author'] != null ? unescapeHtml(j['author'] as String) : null,
         categories: (j['categories'] as List?)?.map((e) => e.toString()).toList() ?? const [],
         content: j['content'] as String?,
         publishedAt: j['published_at'] as String?,

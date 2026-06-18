@@ -394,15 +394,6 @@ class _Header extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         _background(),
-        const DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.black26, Colors.black54],
-            ),
-          ),
-        ),
         if (settings?.logo != null)
           Padding(
             padding: const EdgeInsets.only(top: 40),

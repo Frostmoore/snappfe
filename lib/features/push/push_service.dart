@@ -23,6 +23,22 @@ class PushService {
     await OneSignal.Notifications.requestPermission(true);
   }
 
+  /// Safeguard contro il "consenso dato ma non iscritto": se l'utente ha
+  /// concesso le notifiche ma il device NON risulta opted-in o NON ha un token
+  /// (es. registrazione FCM fallita "a freddo", come su certi Xiaomi/POCO o reti
+  /// instabili), ritenta l'opt-in → OneSignal riprova a registrare il device.
+  /// Va chiamata a ogni apertura/resume dell'app, così lo stato si auto-ripara.
+  /// NON insiste se il permesso non è stato concesso.
+  static void ensureSubscribed() {
+    if (!_enabled) return;
+    if (OneSignal.Notifications.permission != true) return; // niente consenso: non insistere
+    final sub = OneSignal.User.pushSubscription;
+    final hasToken = sub.token != null && sub.token!.isNotEmpty;
+    if (sub.optedIn != true || !hasToken) {
+      OneSignal.User.pushSubscription.optIn();
+    }
+  }
+
   /// Associa il device all'utente app (external id) per il targeting per-utente.
   static Future<void> login(String externalId) async {
     if (!_enabled || externalId.isEmpty) return;

@@ -30,8 +30,34 @@ Future<void> main() async {
   runApp(const ProviderScope(child: SnappApp()));
 }
 
-class SnappApp extends StatelessWidget {
+class SnappApp extends StatefulWidget {
   const SnappApp({super.key});
+
+  @override
+  State<SnappApp> createState() => _SnappAppState();
+}
+
+class _SnappAppState extends State<SnappApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // A ogni ritorno in primo piano: verifica che le push siano davvero attive
+    // (consenso dato ma device non iscritto → ritenta). Auto-riparazione.
+    if (state == AppLifecycleState.resumed) {
+      PushService.ensureSubscribed();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

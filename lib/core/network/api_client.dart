@@ -15,7 +15,9 @@ class ApiClient {
             Dio(BaseOptions(
               baseUrl: AppConfig.apiBaseUrl,
               connectTimeout: const Duration(seconds: 10),
-              receiveTimeout: const Duration(seconds: 15),
+              // Margine ampio: al primo accesso il proxy WP "a freddo" può
+              // tardare diversi secondi (il backend lo attende fino a ~20s).
+              receiveTimeout: const Duration(seconds: 30),
               headers: {'Accept': 'application/json'},
             )) {
     this.dio.interceptors.add(InterceptorsWrapper(

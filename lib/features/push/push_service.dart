@@ -41,6 +41,13 @@ class PushService {
     }
   }
 
+  /// Registra l'email dell'utente come email subscription OneSignal (consente
+  /// l'invio email via OneSignal e l'aggancio dell'email all'utente).
+  static void setEmail(String? email) {
+    if (!_enabled || email == null || email.isEmpty) return;
+    OneSignal.User.addEmail(email);
+  }
+
   /// Sgancia l'utente al logout: il device non riceve più push mirate all'utente.
   static Future<void> logout() async {
     if (!_enabled) return;

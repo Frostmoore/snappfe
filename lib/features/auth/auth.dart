@@ -171,6 +171,7 @@ class AuthController extends AsyncNotifier<User?> {
       final user = await ref.read(authRepositoryProvider).me();
       await PushService.login(user.id.toString()); // identità OneSignal
       PushService.setRole(user.wpRole); // tag ruolo WP per i segmenti
+      PushService.setEmail(user.email); // email subscription OneSignal
       return user;
     } on ApiException catch (e) {
       if (e.statusCode == 401) {
@@ -194,6 +195,7 @@ class AuthController extends AsyncNotifier<User?> {
     if (user != null) {
       await PushService.login(user.id.toString());
       PushService.setRole(user.wpRole);
+      PushService.setEmail(user.email);
     }
   }
 

@@ -135,6 +135,12 @@ class AuthRepository {
     await api.postData('/auth/sna/password/forgot', body: {'email': email});
   }
 
+  /// Reset password SNA: verifica SOLO il codice (step OTP). Lancia ApiException
+  /// (422) se errato/scaduto; non consuma il codice.
+  Future<void> snaVerifyCode(String email, String code) async {
+    await api.postData('/auth/sna/password/verify', body: {'email': email, 'code': code});
+  }
+
   /// Reset password SNA: verifica il codice e imposta la nuova password.
   /// Lancia ApiException (422) se il codice è errato/scaduto.
   Future<void> snaResetPassword(String email, String code, String password, String passwordConfirmation) async {

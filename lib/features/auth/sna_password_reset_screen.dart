@@ -4,9 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import 'auth.dart';
 
-/// Reset password del sito SNA in due passi, tutto in-app:
-/// 1) inserisci l'email → ti arriva un codice;
-/// 2) inserisci codice + nuova password → fatto (nessun passaggio dal sito web).
+/// Reset password del sito SNA in tre passi, tutto in-app:
+/// 1) email → ti arriva un codice;
+/// 2) inserisci il codice → viene **verificato**;
+/// 3) (solo dopo) imposti la nuova password. Nessun passaggio dal sito web.
 class SnaPasswordResetScreen extends ConsumerStatefulWidget {
   const SnaPasswordResetScreen({super.key});
 
@@ -20,7 +21,7 @@ class _SnaPasswordResetScreenState extends ConsumerState<SnaPasswordResetScreen>
   final _password = TextEditingController();
   final _confirm = TextEditingController();
 
-  bool _codeSent = false; // false = step email, true = step codice+password
+  int _step = 0; // 0 = email · 1 = codice · 2 = nuova password
   bool _busy = false;
   bool _obscure = true;
   String? _error;
@@ -46,22 +47,42 @@ class _SnaPasswordResetScreenState extends ConsumerState<SnaPasswordResetScreen>
     });
     try {
       await ref.read(authRepositoryProvider).snaForgotPassword(email);
-      if (mounted) setState(() => _codeSent = true);
     } catch (_) {
-      // Risposta generica anche lato app: passiamo comunque al passo 2.
-      if (mounted) setState(() => _codeSent = true);
+      // risposta generica: si avanza comunque al passo del codice
+    } finally {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _step = 1;
+        });
+      }
+    }
+  }
+
+  Future<void> _verifyCode() async {
+    final code = _code.text.trim();
+    if (code.isEmpty) {
+      setState(() => _error = 'Inserisci il codice ricevuto via email.');
+      return;
+    }
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await ref.read(authRepositoryProvider).snaVerifyCode(_email.text.trim(), code);
+      if (mounted) setState(() => _step = 2);
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = 'Codice non valido o scaduto. Controlla l\'email o richiedi un nuovo codice.');
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
   Future<void> _reset() async {
-    final code = _code.text.trim();
     final pwd = _password.text;
-    if (code.isEmpty) {
-      setState(() => _error = 'Inserisci il codice ricevuto via email.');
-      return;
-    }
     if (pwd.length < 8) {
       setState(() => _error = 'La password deve avere almeno 8 caratteri.');
       return;
@@ -75,7 +96,7 @@ class _SnaPasswordResetScreenState extends ConsumerState<SnaPasswordResetScreen>
       _error = null;
     });
     try {
-      await ref.read(authRepositoryProvider).snaResetPassword(_email.text.trim(), code, pwd, _confirm.text);
+      await ref.read(authRepositoryProvider).snaResetPassword(_email.text.trim(), _code.text.trim(), pwd, _confirm.text);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Password SNA aggiornata. Ora puoi accedere con la nuova password.')),
@@ -85,29 +106,50 @@ class _SnaPasswordResetScreenState extends ConsumerState<SnaPasswordResetScreen>
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = 'Codice non valido o scaduto. Controlla l\'email o richiedi un nuovo codice.';
+          _error = 'Impossibile reimpostare la password. Il codice potrebbe essere scaduto: richiedine uno nuovo.';
         });
       }
     }
   }
 
+  void _restart() => setState(() {
+        _step = 0;
+        _code.clear();
+        _password.clear();
+        _confirm.clear();
+        _error = null;
+      });
+
   @override
   Widget build(BuildContext context) {
+    final (intro, action, label) = switch (_step) {
+      0 => (
+          'Inserisci l\'email del tuo account SNA: ti invieremo un codice per impostare una nuova password, direttamente qui nell\'app.',
+          _requestCode,
+          'Invia codice',
+        ),
+      1 => (
+          'Ti abbiamo inviato un codice a ${_email.text.trim()} (se l\'email è registrata su SNA). Inseriscilo per continuare.',
+          _verifyCode,
+          'Verifica codice',
+        ),
+      _ => (
+          'Codice verificato ✓. Imposta ora la nuova password del tuo account SNA.',
+          _reset,
+          'Reimposta password',
+        ),
+    };
+
     return Scaffold(
       appBar: AppBar(title: const Text('Reimposta password SNA')),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           const SizedBox(height: 8),
-          Text(
-            _codeSent
-                ? 'Se l\'email è registrata su SNA, ti abbiamo inviato un codice a ${_email.text.trim()}. Inseriscilo qui sotto con la nuova password.'
-                : 'Inserisci l\'email del tuo account SNA: ti invieremo un codice per impostare una nuova password, direttamente qui nell\'app.',
-            style: TextStyle(color: Colors.grey.shade700, height: 1.5),
-          ),
+          Text(intro, style: TextStyle(color: Colors.grey.shade700, height: 1.5)),
           const SizedBox(height: 20),
 
-          if (!_codeSent) ...[
+          if (_step == 0)
             TextField(
               controller: _email,
               keyboardType: TextInputType.emailAddress,
@@ -116,15 +158,17 @@ class _SnaPasswordResetScreenState extends ConsumerState<SnaPasswordResetScreen>
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => _busy ? null : _requestCode(),
               decoration: const InputDecoration(labelText: 'Email SNA', prefixIcon: Icon(Icons.email_outlined)),
-            ),
-          ] else ...[
+            )
+          else if (_step == 1)
             TextField(
               controller: _code,
               keyboardType: TextInputType.number,
               autocorrect: false,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => _busy ? null : _verifyCode(),
               decoration: const InputDecoration(labelText: 'Codice (6 cifre)', prefixIcon: Icon(Icons.pin_outlined)),
-            ),
-            const SizedBox(height: 12),
+            )
+          else ...[
             TextField(
               controller: _password,
               obscureText: _obscure,
@@ -160,16 +204,15 @@ class _SnaPasswordResetScreenState extends ConsumerState<SnaPasswordResetScreen>
           SizedBox(
             height: 52,
             child: FilledButton(
-              onPressed: _busy ? null : (_codeSent ? _reset : _requestCode),
+              onPressed: _busy ? null : action,
               child: _busy
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : Text(_codeSent ? 'Reimposta password' : 'Invia codice',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  : Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             ),
           ),
-          if (_codeSent)
+          if (_step > 0)
             TextButton(
-              onPressed: _busy ? null : () => setState(() => _codeSent = false),
+              onPressed: _busy ? null : _restart,
               child: const Text('Cambia email / richiedi un nuovo codice'),
             ),
         ],

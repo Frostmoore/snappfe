@@ -4,6 +4,7 @@ import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/providers.dart';
 import '../../core/util/navigation.dart';
 import '../../core/widgets/async_value_widget.dart';
 import 'event.dart';
@@ -17,7 +18,14 @@ class EventsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Eventi')),
       body: RefreshIndicator(
-        onRefresh: () async => ref.invalidate(eventsProvider),
+        onRefresh: () async {
+          // Forza il backend a rileggere dal sito (bypassa la cache 120s) e ripopola,
+          // poi rilegge la lista aggiornata.
+          try {
+            await ref.read(apiClientProvider).getData('/events', query: {'refresh': 1});
+          } catch (_) {}
+          ref.invalidate(eventsProvider);
+        },
         child: AsyncValueWidget<List<Event>>(
           value: events,
           onRetry: () => ref.invalidate(eventsProvider),
@@ -98,7 +106,7 @@ class _EventCard extends StatelessWidget {
                     Row(children: [
                       const Icon(Icons.event, size: 16),
                       const SizedBox(width: 6),
-                      Text(df.format(event.startsAt!.toLocal())),
+                      Text(df.format(event.startsAt!)),
                     ]),
                   if (event.place != null) ...[
                     const SizedBox(height: 4),

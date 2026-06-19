@@ -3,10 +3,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:intl/intl.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import '../../core/util/html.dart';
 import '../../core/widgets/async_value_widget.dart';
 import 'event.dart';
 
@@ -54,13 +54,13 @@ class EventDetailScreen extends ConsumerWidget {
             Text(e.title, style: const TextStyle(color: kNavy, fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             if (e.startsAt != null)
-              _InfoRow(icon: Icons.event, text: df.format(e.startsAt!.toLocal())),
+              _InfoRow(icon: Icons.event, text: df.format(e.startsAt!)),
             if (e.place != null) _InfoRow(icon: Icons.map_outlined, text: e.place!),
             if (e.location != null && e.location!.isNotEmpty)
               _InfoRow(icon: Icons.place_outlined, text: e.location!),
             const SizedBox(height: 16),
             if (e.description != null && e.description!.isNotEmpty)
-              Text(stripHtml(e.description), style: const TextStyle(fontSize: 16, height: 1.5)),
+              HtmlWidget(e.description!, textStyle: const TextStyle(fontSize: 16, height: 1.5)),
             const SizedBox(height: 24),
             if (e.startsAt != null)
               OutlinedButton.icon(

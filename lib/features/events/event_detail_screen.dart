@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:add_2_calendar/add_2_calendar.dart' as cal;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +14,8 @@ class EventDetailScreen extends ConsumerWidget {
   final int id;
   const EventDetailScreen({super.key, required this.id});
 
-  void _addToCalendar(BuildContext context, {
+  void _addToCalendar(
+    BuildContext context, {
     required String title,
     String? description,
     String? location,
@@ -28,7 +27,7 @@ class EventDetailScreen extends ConsumerWidget {
       description: description ?? '',
       location: location ?? '',
       startDate: start,
-      endDate: end ?? start.add(const Duration(hours: 1)),
+      endDate: end ?? start.add(const Duration(hours: 2)),
     ));
   }
 
@@ -48,16 +47,20 @@ class EventDetailScreen extends ConsumerWidget {
             if (e.cover != null)
               ClipRRect(borderRadius: BorderRadius.circular(12), child: CachedNetworkImage(imageUrl: e.cover!)),
             const SizedBox(height: 16),
+            if (e.typeLabel != null && e.typeLabel!.isNotEmpty) ...[
+              _TypeBadge(label: e.typeLabel!, type: e.type),
+              const SizedBox(height: 10),
+            ],
             Text(e.title, style: const TextStyle(color: kNavy, fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             if (e.startsAt != null)
-              Row(children: [const Icon(Icons.event), const SizedBox(width: 8), Expanded(child: Text(df.format(e.startsAt!.toLocal())))]),
-            if (e.location != null) ...[
-              const SizedBox(height: 8),
-              Row(children: [const Icon(Icons.place_outlined), const SizedBox(width: 8), Expanded(child: Text(e.location!))]),
-            ],
+              _InfoRow(icon: Icons.event, text: df.format(e.startsAt!.toLocal())),
+            if (e.place != null) _InfoRow(icon: Icons.map_outlined, text: e.place!),
+            if (e.location != null && e.location!.isNotEmpty)
+              _InfoRow(icon: Icons.place_outlined, text: e.location!),
             const SizedBox(height: 16),
-            if (e.description != null) Text(stripHtml(e.description), style: const TextStyle(fontSize: 16, height: 1.5)),
+            if (e.description != null && e.description!.isNotEmpty)
+              Text(stripHtml(e.description), style: const TextStyle(fontSize: 16, height: 1.5)),
             const SizedBox(height: 24),
             if (e.startsAt != null)
               OutlinedButton.icon(
@@ -70,18 +73,7 @@ class EventDetailScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               FilledButton.icon(
                 onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => _RegistrationWebView(
-                    url: e.registrationUrl!,
-                    onRegistered: (data) {
-                      // A registrazione avvenuta: aggiunge l'evento al calendario del device.
-                      final start = DateTime.tryParse(data['start']?.toString() ?? '') ?? e.startsAt ?? DateTime.now();
-                      _addToCalendar(context,
-                          title: (data['title'] ?? e.title).toString(),
-                          location: (data['location'] ?? e.location)?.toString(),
-                          start: start,
-                          end: DateTime.tryParse(data['end']?.toString() ?? ''));
-                    },
-                  ),
+                  builder: (_) => _EventPageWebView(url: e.registrationUrl!, title: e.title),
                 )),
                 icon: const Icon(Icons.how_to_reg),
                 label: const Text('Registrati all\'evento'),
@@ -94,19 +86,72 @@ class EventDetailScreen extends ConsumerWidget {
   }
 }
 
-/// WebView del form di registrazione su WordPress. Riceve i dati dell'evento dal
-/// canale JS `SnappBridge` (contratto del plugin) per creare l'evento in calendario.
-class _RegistrationWebView extends StatefulWidget {
-  final String url;
-  final void Function(Map<String, dynamic> eventData) onRegistered;
-
-  const _RegistrationWebView({required this.url, required this.onRegistered});
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _InfoRow({required this.icon, required this.text});
 
   @override
-  State<_RegistrationWebView> createState() => _RegistrationWebViewState();
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(children: [
+        Icon(icon, color: kNavy),
+        const SizedBox(width: 8),
+        Expanded(child: Text(text)),
+      ]),
+    );
+  }
 }
 
-class _RegistrationWebViewState extends State<_RegistrationWebView> {
+/// Etichetta colorata del tipo di evento (Formativo/Politico/Altro).
+class _TypeBadge extends StatelessWidget {
+  final String label;
+  final String? type;
+  const _TypeBadge({required this.label, this.type});
+
+  Color get _color {
+    switch (type) {
+      case 'formativo':
+        return const Color(0xFF1E88E5);
+      case 'politico':
+        return const Color(0xFFE65100);
+      default:
+        return const Color(0xFF607D8B);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: _color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label.toUpperCase(),
+          style: TextStyle(color: _color, fontWeight: FontWeight.w700, fontSize: 11, letterSpacing: 0.5),
+        ),
+      ),
+    );
+  }
+}
+
+/// Apre la pagina WordPress dell'evento in una WebView in-app (registrazione).
+class _EventPageWebView extends StatefulWidget {
+  final String url;
+  final String title;
+
+  const _EventPageWebView({required this.url, required this.title});
+
+  @override
+  State<_EventPageWebView> createState() => _EventPageWebViewState();
+}
+
+class _EventPageWebViewState extends State<_EventPageWebView> {
   late final WebViewController _controller;
 
   @override
@@ -114,31 +159,13 @@ class _RegistrationWebViewState extends State<_RegistrationWebView> {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..addJavaScriptChannel('SnappBridge', onMessageReceived: (message) {
-        try {
-          final decoded = jsonDecode(message.message);
-          if (decoded is Map && decoded['type'] == 'event_registered') {
-            final payload = decoded['payload'];
-            final event = payload is Map ? payload['event'] : null;
-            if (event is Map) {
-              widget.onRegistered(Map<String, dynamic>.from(event));
-              if (mounted) {
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Registrazione completata. Evento aggiunto al calendario.')),
-                );
-              }
-            }
-          }
-        } catch (_) {}
-      })
       ..loadRequest(Uri.parse(widget.url));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Registrazione')),
+      appBar: AppBar(title: Text(widget.title, overflow: TextOverflow.ellipsis)),
       body: WebViewWidget(controller: _controller),
     );
   }

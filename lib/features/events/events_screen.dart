@@ -35,6 +35,39 @@ class EventsScreen extends ConsumerWidget {
   }
 }
 
+/// Etichetta colorata del tipo di evento (Formativo/Politico/Altro).
+class _TypeBadge extends StatelessWidget {
+  final String label;
+  final String? type;
+  const _TypeBadge({required this.label, this.type});
+
+  Color get _color {
+    switch (type) {
+      case 'formativo':
+        return const Color(0xFF1E88E5);
+      case 'politico':
+        return const Color(0xFFE65100);
+      default:
+        return const Color(0xFF607D8B);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: _color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label.toUpperCase(),
+        style: TextStyle(color: _color, fontWeight: FontWeight.w700, fontSize: 11, letterSpacing: 0.5),
+      ),
+    );
+  }
+}
+
 class _EventCard extends StatelessWidget {
   final Event event;
   const _EventCard({required this.event});
@@ -55,6 +88,10 @@ class _EventCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (event.typeLabel != null && event.typeLabel!.isNotEmpty) ...[
+                    _TypeBadge(label: event.typeLabel!, type: event.type),
+                    const SizedBox(height: 8),
+                  ],
                   Text(event.title, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 6),
                   if (event.startsAt != null)
@@ -63,7 +100,15 @@ class _EventCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       Text(df.format(event.startsAt!.toLocal())),
                     ]),
-                  if (event.location != null) ...[
+                  if (event.place != null) ...[
+                    const SizedBox(height: 4),
+                    Row(children: [
+                      const Icon(Icons.map_outlined, size: 16),
+                      const SizedBox(width: 6),
+                      Expanded(child: Text(event.place!, overflow: TextOverflow.ellipsis)),
+                    ]),
+                  ],
+                  if (event.location != null && event.location!.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Row(children: [
                       const Icon(Icons.place_outlined, size: 16),

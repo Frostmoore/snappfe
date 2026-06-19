@@ -8,10 +8,14 @@ class Event {
   final String slug;
   final String? description;
   final String? cover;
-  final String? location;
+  final String? location; // indirizzo
+  final String? region;
+  final String? province;
+  final String? type; // slug: formativo | politico | altro
+  final String? typeLabel; // etichetta leggibile
   final DateTime? startsAt;
   final DateTime? endsAt;
-  final String? registrationUrl;
+  final String? registrationUrl; // link della pagina WP
 
   Event({
     required this.id,
@@ -20,12 +24,24 @@ class Event {
     this.description,
     this.cover,
     this.location,
+    this.region,
+    this.province,
+    this.type,
+    this.typeLabel,
     this.startsAt,
     this.endsAt,
     this.registrationUrl,
   });
 
   bool get hasRegistration => registrationUrl != null && registrationUrl!.isNotEmpty;
+
+  /// "Provincia (Regione)" se entrambe presenti, altrimenti quella disponibile.
+  String? get place {
+    if (province != null && province!.isNotEmpty && region != null && region!.isNotEmpty) {
+      return '$province ($region)';
+    }
+    return (province?.isNotEmpty ?? false) ? province : region;
+  }
 
   factory Event.fromJson(Map<String, dynamic> j) => Event(
         id: j['id'] as int,
@@ -34,6 +50,10 @@ class Event {
         description: j['description'] as String?,
         cover: j['cover'] as String?,
         location: j['location'] as String?,
+        region: j['region'] as String?,
+        province: j['province'] as String?,
+        type: j['type'] as String?,
+        typeLabel: j['type_label'] as String?,
         startsAt: j['starts_at'] != null ? DateTime.tryParse(j['starts_at']) : null,
         endsAt: j['ends_at'] != null ? DateTime.tryParse(j['ends_at']) : null,
         registrationUrl: j['registration_url'] as String?,

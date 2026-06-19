@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/theme/app_colors.dart';
 import '../../core/widgets/async_value_widget.dart';
 import 'provincial_section.dart';
 
@@ -61,19 +61,26 @@ class _SectionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: const CircleAvatar(child: Icon(Icons.location_on_outlined)),
-      title: Text(section.name),
-      subtitle: Text([section.province, section.address].where((e) => e != null && e.isNotEmpty).join(' · ')),
-      trailing: section.phone != null
-          ? IconButton(
-              icon: const Icon(Icons.phone),
-              onPressed: () => launchUrl(Uri.parse('tel:${section.phone}')),
-            )
-          : null,
-      onTap: section.website != null
-          ? () => launchUrl(Uri.parse(section.website!), mode: LaunchMode.externalApplication)
-          : null,
+    final grey = Colors.grey.shade600;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Titolo: grassetto, stesso colore degli altri titoli.
+          Text(section.name, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 16)),
+          if (section.textBold != null && section.textBold!.isNotEmpty) ...[
+            const SizedBox(height: 5),
+            // Testo libero più piccolo, grigio grassetto.
+            Text(section.textBold!, style: TextStyle(color: grey, fontWeight: FontWeight.bold, fontSize: 13)),
+          ],
+          if (section.textItalic != null && section.textItalic!.isNotEmpty) ...[
+            const SizedBox(height: 3),
+            // Testo libero, stessa dimensione, grigio corsivo.
+            Text(section.textItalic!, style: TextStyle(color: grey, fontStyle: FontStyle.italic, fontSize: 13)),
+          ],
+        ],
+      ),
     );
   }
 }

@@ -5,6 +5,8 @@ import '../../core/providers.dart';
 class ProvincialSection {
   final int id;
   final String name;
+  final String? textBold; // testo libero in grigio grassetto
+  final String? textItalic; // testo libero in grigio corsivo
   final String? province;
   final String? region;
   final String? address;
@@ -16,6 +18,8 @@ class ProvincialSection {
   ProvincialSection({
     required this.id,
     required this.name,
+    this.textBold,
+    this.textItalic,
     this.province,
     this.region,
     this.address,
@@ -28,6 +32,8 @@ class ProvincialSection {
   factory ProvincialSection.fromJson(Map<String, dynamic> j) => ProvincialSection(
         id: j['id'] as int,
         name: (j['name'] ?? '') as String,
+        textBold: j['text_bold'] as String?,
+        textItalic: j['text_italic'] as String?,
         province: j['province'] as String?,
         region: j['region'] as String?,
         address: j['address'] as String?,

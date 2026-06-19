@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/async_value_widget.dart';
@@ -62,13 +63,23 @@ class _SectionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final grey = Colors.grey.shade600;
-    return Padding(
+    final hasWebsite = section.website != null && section.website!.isNotEmpty;
+    final content = Padding(
       padding: const EdgeInsets.symmetric(vertical: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Titolo: grassetto, stesso colore degli altri titoli.
           Text(section.name, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 16)),
+          if (section.address != null && section.address!.isNotEmpty) ...[
+            const SizedBox(height: 5),
+            // Indirizzo, sopra ai due testi grigi.
+            Row(children: [
+              Icon(Icons.place_outlined, size: 16, color: Colors.grey.shade700),
+              const SizedBox(width: 6),
+              Expanded(child: Text(section.address!, style: TextStyle(color: Colors.grey.shade800, fontSize: 13))),
+            ]),
+          ],
           if (section.textBold != null && section.textBold!.isNotEmpty) ...[
             const SizedBox(height: 5),
             // Testo libero più piccolo, grigio grassetto.
@@ -81,6 +92,12 @@ class _SectionTile extends StatelessWidget {
           ],
         ],
       ),
+    );
+
+    if (!hasWebsite) return content;
+    return InkWell(
+      onTap: () => launchUrl(Uri.parse(section.website!), mode: LaunchMode.externalApplication),
+      child: content,
     );
   }
 }

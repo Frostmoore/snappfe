@@ -5,42 +5,24 @@ import '../../core/providers.dart';
 class ProvincialSection {
   final int id;
   final String name;
-  final String? textBold; // testo libero in grigio grassetto
-  final String? textItalic; // testo libero in grigio corsivo
+  final String? body; // contenuto rich-text (HTML) libero
   final String? province;
   final String? region;
-  final String? address;
-  final String? email;
-  final String? phone;
-  final String? website;
-  final String? notes;
 
   ProvincialSection({
     required this.id,
     required this.name,
-    this.textBold,
-    this.textItalic,
+    this.body,
     this.province,
     this.region,
-    this.address,
-    this.email,
-    this.phone,
-    this.website,
-    this.notes,
   });
 
   factory ProvincialSection.fromJson(Map<String, dynamic> j) => ProvincialSection(
         id: j['id'] as int,
         name: (j['name'] ?? '') as String,
-        textBold: j['text_bold'] as String?,
-        textItalic: j['text_italic'] as String?,
+        body: j['body'] as String?,
         province: j['province'] as String?,
         region: j['region'] as String?,
-        address: j['address'] as String?,
-        email: j['email'] as String?,
-        phone: j['phone'] as String?,
-        website: j['website'] as String?,
-        notes: j['notes'] as String?,
       );
 }
 

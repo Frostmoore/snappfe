@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/async_value_widget.dart';
@@ -56,48 +56,35 @@ class _ProvincialScreenState extends ConsumerState<ProvincialScreen> {
   }
 }
 
+/// Card espandibile: il titolo è sempre visibile, espandendola appare il
+/// contenuto rich-text (HTML) libero in grigio scuro.
 class _SectionCard extends StatelessWidget {
   final ProvincialSection section;
   const _SectionCard({required this.section});
 
   @override
   Widget build(BuildContext context) {
-    final grey = Colors.grey.shade600;
-    final hasWebsite = section.website != null && section.website!.isNotEmpty;
+    final hasBody = section.body != null && section.body!.trim().isNotEmpty;
     return Card(
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: hasWebsite
-            ? () => launchUrl(Uri.parse(section.website!), mode: LaunchMode.externalApplication)
-            : null,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Titolo: grassetto, stesso colore degli altri titoli.
-              Text(section.name, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 16)),
-              if (section.address != null && section.address!.isNotEmpty) ...[
-                const SizedBox(height: 5),
-                // Indirizzo, sopra ai due testi grigi.
-                Row(children: [
-                  Icon(Icons.place_outlined, size: 16, color: Colors.grey.shade700),
-                  const SizedBox(width: 6),
-                  Expanded(child: Text(section.address!, style: TextStyle(color: Colors.grey.shade800, fontSize: 13))),
-                ]),
-              ],
-              if (section.textBold != null && section.textBold!.isNotEmpty) ...[
-                const SizedBox(height: 5),
-                // Testo libero più piccolo, grigio grassetto.
-                Text(section.textBold!, style: TextStyle(color: grey, fontWeight: FontWeight.bold, fontSize: 13)),
-              ],
-              if (section.textItalic != null && section.textItalic!.isNotEmpty) ...[
-                const SizedBox(height: 3),
-                // Testo libero, stessa dimensione, grigio corsivo.
-                Text(section.textItalic!, style: TextStyle(color: grey, fontStyle: FontStyle.italic, fontSize: 13)),
-              ],
-            ],
-          ),
+      child: Theme(
+        // Rimuove le righe divisorie di default dell'ExpansionTile dentro la card.
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          title: Text(section.name, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 16)),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          expandedCrossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (hasBody)
+              HtmlWidget(
+                section.body!,
+                textStyle: const TextStyle(color: Color(0xFF424242), fontSize: 14, height: 1.45),
+              )
+            else
+              const Text('Nessuna informazione disponibile.',
+                  style: TextStyle(color: Color(0xFF757575), fontStyle: FontStyle.italic, fontSize: 13)),
+          ],
         ),
       ),
     );

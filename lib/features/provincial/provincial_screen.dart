@@ -40,12 +40,24 @@ class _ProvincialScreenState extends ConsumerState<ProvincialScreen> {
                     : items.where((s) =>
                         s.name.toLowerCase().contains(_query) ||
                         (s.province?.toLowerCase().contains(_query) ?? false)).toList();
-                if (filtered.isEmpty) return const EmptyView('Nessuna sezione trovata.');
-                return ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-                  itemCount: filtered.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (_, i) => _SectionCard(section: filtered[i]),
+                return RefreshIndicator(
+                  // Trascina per ricaricare le sezioni dal backend (dati aggiornati dal pannello).
+                  onRefresh: () async {
+                    ref.invalidate(provincialSectionsProvider);
+                    await ref.read(provincialSectionsProvider.future);
+                  },
+                  child: filtered.isEmpty
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: const [SizedBox(height: 100), EmptyView('Nessuna sezione trovata.')],
+                        )
+                      : ListView.separated(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                          itemCount: filtered.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 12),
+                          itemBuilder: (_, i) => _SectionCard(section: filtered[i]),
+                        ),
                 );
               },
             ),

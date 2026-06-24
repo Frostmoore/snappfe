@@ -9,48 +9,65 @@ import 'org_member.dart';
 class OrgChartScreen extends ConsumerWidget {
   const OrgChartScreen({super.key});
 
-  /// Appiattisce l'albero (DFS) così tutti i ruoli sono visibili subito, in ordine.
-  List<OrgMember> _flatten(List<OrgMember> members) {
-    final out = <OrgMember>[];
-    void visit(OrgMember m) {
-      out.add(m);
-      for (final c in m.children) {
-        visit(c);
-      }
-    }
-    for (final m in members) {
-      visit(m);
-    }
-    return out;
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tree = ref.watch(orgChartProvider);
+    final groups = ref.watch(orgChartProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Organigramma')),
       body: RefreshIndicator(
         onRefresh: () async => ref.invalidate(orgChartProvider),
-        child: AsyncValueWidget<List<OrgMember>>(
-          value: tree,
+        child: AsyncValueWidget<List<OrgGroup>>(
+          value: groups,
           onRetry: () => ref.invalidate(orgChartProvider),
-          data: (roots) {
-            final members = _flatten(roots);
-            if (members.isEmpty) {
+          data: (list) {
+            if (list.isEmpty) {
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: const [SizedBox(height: 100), EmptyView('Organigramma non disponibile.')],
               );
             }
-            return ListView.separated(
+            return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              itemCount: members.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (_, i) => _MemberCard(member: members[i]),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              children: [
+                for (final g in list) ...[
+                  _GroupHeader(title: g.title),
+                  for (final m in g.members)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _MemberCard(member: m),
+                    ),
+                  const SizedBox(height: 12),
+                ],
+              ],
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+/// Titolo di sezione (es. "Direzione").
+class _GroupHeader extends StatelessWidget {
+  final String title;
+  const _GroupHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 10),
+      child: Row(
+        children: [
+          Container(width: 4, height: 20, decoration: BoxDecoration(color: kNavy, borderRadius: BorderRadius.circular(2))),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              title.toUpperCase(),
+              style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 15, letterSpacing: 0.5),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -82,7 +82,7 @@ class _SectionHeader extends StatelessWidget {
           Text(
             group.title,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 20, letterSpacing: 1.2),
+            style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 20, letterSpacing: 1.4),
           ),
           if (hasDescription) ...[
             const SizedBox(height: 10),

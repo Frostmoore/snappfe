@@ -98,39 +98,83 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-class _MemberCard extends StatelessWidget {
+/// Colore del bordo sinistro che appare al tap (come in home).
+const Color _cardActiveBorder = Color(0xFF4594F5);
+
+/// Card membro: angoli vivi, ripple, e bordo sinistro blu che compare al tap
+/// (stesso comportamento delle card della home).
+class _MemberCard extends StatefulWidget {
   final OrgMember member;
   const _MemberCard({required this.member});
 
   @override
+  State<_MemberCard> createState() => _MemberCardState();
+}
+
+class _MemberCardState extends State<_MemberCard> {
+  bool _active = false;
+
+  Future<void> _onTap() async {
+    setState(() => _active = true);
+    await Future.delayed(const Duration(milliseconds: 200));
+    if (mounted) setState(() => _active = false);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final member = widget.member;
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
+      elevation: 3,
+      shadowColor: Colors.black54,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero), // angoli vivi
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: _onTap,
+        child: Stack(
           children: [
-            CircleAvatar(
-              radius: 26,
-              backgroundColor: kNavy.withValues(alpha: 0.10),
-              backgroundImage: member.photo != null ? CachedNetworkImageProvider(member.photo!) : null,
-              child: member.photo == null
-                  ? Text(
-                      member.name.isNotEmpty ? member.name[0].toUpperCase() : '?',
-                      style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 20),
-                    )
-                  : null,
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(member.name, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 16)),
-                  if (member.role != null && member.role!.isNotEmpty) ...[
-                    const SizedBox(height: 3),
-                    Text(member.role!, style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+            AnimatedPadding(
+              duration: const Duration(milliseconds: 120),
+              padding: EdgeInsets.only(left: _active ? 4 : 0),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 26,
+                      backgroundColor: kNavy.withValues(alpha: 0.10),
+                      backgroundImage: member.photo != null ? CachedNetworkImageProvider(member.photo!) : null,
+                      child: member.photo == null
+                          ? Text(
+                              member.name.isNotEmpty ? member.name[0].toUpperCase() : '?',
+                              style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 20),
+                            )
+                          : null,
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(member.name, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 16)),
+                          if (member.role != null && member.role!.isNotEmpty) ...[
+                            const SizedBox(height: 3),
+                            Text(member.role!, style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                          ],
+                        ],
+                      ),
+                    ),
                   ],
-                ],
+                ),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 120),
+                width: _active ? 4 : 0,
+                color: _cardActiveBorder,
               ),
             ),
           ],

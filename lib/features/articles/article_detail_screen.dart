@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -94,22 +93,6 @@ class _ShareBar extends StatelessWidget {
             onTap: () => _open('https://wa.me/?text=$enc'),
           ),
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _ShareButton(
-            label: 'Copia',
-            color: kNavy,
-            icon: FontAwesomeIcons.link,
-            onTap: () async {
-              await Clipboard.setData(ClipboardData(text: url));
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Link copiato negli appunti')),
-                );
-              }
-            },
-          ),
-        ),
       ],
     );
   }
@@ -127,37 +110,34 @@ class _ShareButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final lighter = Color.lerp(color, Colors.white, 0.16)!;
     final darker = Color.lerp(color, Colors.black, 0.16)!;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Material(
-        color: darker,
-        child: InkWell(
-          onTap: onTap,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 38,
-                height: 44,
-                color: lighter,
-                alignment: Alignment.center,
-                child: FaIcon(icon, color: Colors.white, size: 17),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      label,
-                      maxLines: 1,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                    ),
+    return Material(
+      color: darker,
+      child: InkWell(
+        onTap: onTap,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 38,
+              height: 44,
+              color: lighter,
+              alignment: Alignment.center,
+              child: FaIcon(icon, color: Colors.white, size: 17),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

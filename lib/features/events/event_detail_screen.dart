@@ -79,6 +79,7 @@ class EventDetailScreen extends ConsumerWidget {
                 label: const Text('Registrati all\'evento'),
               ),
             ],
+            const SizedBox(height: 32),
           ],
         ),
       ),

@@ -46,6 +46,7 @@ class ArticleDetailScreen extends ConsumerWidget {
               const SizedBox(height: 12),
               _ShareBar(url: a.link!),
             ],
+            const SizedBox(height: 32),
           ],
         ),
       ),

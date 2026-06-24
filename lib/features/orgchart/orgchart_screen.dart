@@ -48,35 +48,47 @@ class OrgChartScreen extends ConsumerWidget {
   }
 }
 
-/// Intestazione di sezione: titolo (navy) + descrizione (come sul sito).
+/// Intestazione di sezione (centrata, stile "LINK SOCIAL"):
+/// sottotitolo tra bande oro → titolo spaziato → descrizione.
 class _SectionHeader extends StatelessWidget {
   final OrgGroup group;
   const _SectionHeader({required this.group});
 
   @override
   Widget build(BuildContext context) {
+    final hasSubtitle = group.subtitle != null && group.subtitle!.trim().isNotEmpty;
     final hasDescription = group.description != null && group.description!.trim().isNotEmpty;
     return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 10),
+      padding: const EdgeInsets.only(top: 14, bottom: 12),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            children: [
-              Container(width: 4, height: 22, decoration: BoxDecoration(color: kNavy, borderRadius: BorderRadius.circular(2))),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  group.title,
-                  style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 18),
+          if (hasSubtitle) ...[
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(width: 30, height: 3, color: kBrandOrange),
+                const SizedBox(width: 12),
+                Text(
+                  group.subtitle!.toUpperCase(),
+                  style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.w400, fontSize: 12, letterSpacing: 2),
                 ),
-              ),
-            ],
+                const SizedBox(width: 12),
+                Container(width: 30, height: 3, color: kBrandOrange),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
+          Text(
+            group.title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 20, letterSpacing: 1.2),
           ),
           if (hasDescription) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
               group.description!,
+              textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey.shade700, fontSize: 13.5, height: 1.45),
             ),
           ],

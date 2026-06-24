@@ -31,13 +31,13 @@ class OrgChartScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               children: [
                 for (final g in list) ...[
-                  _GroupHeader(title: g.title),
+                  _SectionHeader(group: g),
                   for (final m in g.members)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _MemberCard(member: m),
                     ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                 ],
               ],
             );
@@ -48,25 +48,38 @@ class OrgChartScreen extends ConsumerWidget {
   }
 }
 
-/// Titolo di sezione (es. "Direzione").
-class _GroupHeader extends StatelessWidget {
-  final String title;
-  const _GroupHeader({required this.title});
+/// Intestazione di sezione: titolo (navy) + descrizione (come sul sito).
+class _SectionHeader extends StatelessWidget {
+  final OrgGroup group;
+  const _SectionHeader({required this.group});
 
   @override
   Widget build(BuildContext context) {
+    final hasDescription = group.description != null && group.description!.trim().isNotEmpty;
     return Padding(
       padding: const EdgeInsets.only(top: 8, bottom: 10),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(width: 4, height: 20, decoration: BoxDecoration(color: kNavy, borderRadius: BorderRadius.circular(2))),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              title.toUpperCase(),
-              style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 15, letterSpacing: 0.5),
-            ),
+          Row(
+            children: [
+              Container(width: 4, height: 22, decoration: BoxDecoration(color: kNavy, borderRadius: BorderRadius.circular(2))),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  group.title,
+                  style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ),
+            ],
           ),
+          if (hasDescription) ...[
+            const SizedBox(height: 8),
+            Text(
+              group.description!,
+              style: TextStyle(color: Colors.grey.shade700, fontSize: 13.5, height: 1.45),
+            ),
+          ],
         ],
       ),
     );

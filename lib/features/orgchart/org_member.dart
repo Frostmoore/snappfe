@@ -26,15 +26,17 @@ class OrgMember {
       );
 }
 
-/// Sezione dell'organigramma (es. "Direzione") con i suoi membri.
+/// Sezione dell'organigramma (es. "Direzione") con descrizione e membri.
 class OrgGroup {
   final String title;
+  final String? description;
   final List<OrgMember> members;
 
-  OrgGroup({required this.title, required this.members});
+  OrgGroup({required this.title, this.description, required this.members});
 
   factory OrgGroup.fromJson(Map<String, dynamic> j) => OrgGroup(
         title: (j['group'] ?? '') as String,
+        description: j['description'] as String?,
         members: (j['members'] as List?)
                 ?.map((e) => OrgMember.fromJson(Map<String, dynamic>.from(e as Map)))
                 .toList() ??

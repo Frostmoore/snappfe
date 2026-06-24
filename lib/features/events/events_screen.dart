@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../core/providers.dart';
 import '../../core/util/navigation.dart';
 import '../../core/widgets/async_value_widget.dart';
+import '../../core/widgets/tap_card.dart';
 import 'event.dart';
 
 class EventsScreen extends ConsumerStatefulWidget {
@@ -21,12 +22,18 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
   String? _region;
   String? _province;
 
-  bool get _hasFilters => _fromDate != null || _type != null || _region != null || _province != null;
+  bool get _hasFilters =>
+      _fromDate != null ||
+      _type != null ||
+      _region != null ||
+      _province != null;
 
   Future<void> _refresh() async {
     // Forza il backend a rileggere dal sito (bypassa la cache 120s) e ripopola.
     try {
-      await ref.read(apiClientProvider).getData('/events', query: {'refresh': 1});
+      await ref
+          .read(apiClientProvider)
+          .getData('/events', query: {'refresh': 1});
     } catch (_) {}
     ref.invalidate(eventsProvider);
   }
@@ -38,7 +45,8 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
       if (_province != null && e.province != _province) return false;
       if (_fromDate != null) {
         if (e.startsAt == null) return false;
-        final d = DateTime(e.startsAt!.year, e.startsAt!.month, e.startsAt!.day);
+        final d =
+            DateTime(e.startsAt!.year, e.startsAt!.month, e.startsAt!.day);
         if (d.isBefore(_fromDate!)) return false;
       }
       return true;
@@ -75,7 +83,8 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
                           physics: const AlwaysScrollableScrollPhysics(),
                           padding: const EdgeInsets.all(16),
                           itemCount: filtered.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 12),
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 12),
                           itemBuilder: (_, i) => _EventCard(event: filtered[i]),
                         ),
                 ),
@@ -92,11 +101,26 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
   Widget _buildFilters(List<Event> all) {
     final typeOptions = <String, String>{};
     for (final e in all) {
-      if (e.type != null && e.type!.isNotEmpty) typeOptions[e.type!] = e.typeLabel ?? e.type!;
+      if (e.type != null && e.type!.isNotEmpty) {
+        typeOptions[e.type!] = e.typeLabel ?? e.type!;
+      }
     }
-    final regionOptions = all.map((e) => e.region).whereType<String>().where((r) => r.isNotEmpty).toSet().toList()..sort();
-    final provinceSource = _region == null ? all : all.where((e) => e.region == _region);
-    final provinceOptions = provinceSource.map((e) => e.province).whereType<String>().where((p) => p.isNotEmpty).toSet().toList()..sort();
+    final regionOptions = all
+        .map((e) => e.region)
+        .whereType<String>()
+        .where((r) => r.isNotEmpty)
+        .toSet()
+        .toList()
+      ..sort();
+    final provinceSource =
+        _region == null ? all : all.where((e) => e.region == _region);
+    final provinceOptions = provinceSource
+        .map((e) => e.province)
+        .whereType<String>()
+        .where((p) => p.isNotEmpty)
+        .toSet()
+        .toList()
+      ..sort();
 
     return Material(
       elevation: 1,
@@ -161,7 +185,9 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
 
   Widget _dateChip() {
     final active = _fromDate != null;
-    final text = active ? 'Dal ${DateFormat('d MMM yyyy', 'it').format(_fromDate!)}' : 'Data';
+    final text = active
+        ? 'Dal ${DateFormat('d MMM yyyy', 'it').format(_fromDate!)}'
+        : 'Data';
     return InkWell(
       borderRadius: BorderRadius.circular(20),
       onTap: () async {
@@ -172,7 +198,10 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
           firstDate: DateTime(now.year - 1),
           lastDate: DateTime(now.year + 3),
         );
-        if (picked != null) setState(() => _fromDate = DateTime(picked.year, picked.month, picked.day));
+        if (picked != null) {
+          setState(() =>
+              _fromDate = DateTime(picked.year, picked.month, picked.day));
+        }
       },
       child: _chipBox(text, active, trailingIcon: Icons.calendar_today),
     );
@@ -191,9 +220,11 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
       onSelected: (v) => onPick(v.isEmpty ? null : v),
       itemBuilder: (_) => [
         const PopupMenuItem(value: '', child: Text('Tutti')),
-        ...options.entries.map((e) => PopupMenuItem(value: e.key, child: Text(e.value))),
+        ...options.entries
+            .map((e) => PopupMenuItem(value: e.key, child: Text(e.value))),
       ],
-      child: _chipBox(active ? (display ?? value) : label, active, trailingIcon: Icons.arrow_drop_down),
+      child: _chipBox(active ? (display ?? value) : label, active,
+          trailingIcon: Icons.arrow_drop_down),
     );
   }
 
@@ -209,7 +240,11 @@ class _EventsScreenState extends ConsumerState<EventsScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(text, style: TextStyle(color: color, fontWeight: active ? FontWeight.w700 : FontWeight.w500, fontSize: 13)),
+          Text(text,
+              style: TextStyle(
+                  color: color,
+                  fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                  fontSize: 13)),
           if (trailingIcon != null) Icon(trailingIcon, size: 18, color: color),
         ],
       ),
@@ -244,7 +279,11 @@ class _TypeBadge extends StatelessWidget {
       ),
       child: Text(
         label.toUpperCase(),
-        style: TextStyle(color: _color, fontWeight: FontWeight.w700, fontSize: 11, letterSpacing: 0.5),
+        style: TextStyle(
+            color: _color,
+            fontWeight: FontWeight.w700,
+            fontSize: 11,
+            letterSpacing: 0.5),
       ),
     );
   }
@@ -257,63 +296,69 @@ class _EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final df = DateFormat('d MMM yyyy, HH:mm', 'it');
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => pushWithRipple(context, '/events/${event.id}'),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Icona (niente copertina nella preview), come le altre card.
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: kNavy.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.event, color: kNavy),
+    return TapCard(
+      onTap: () => pushWithRipple(context, '/events/${event.id}'),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Icona (niente copertina nella preview), come le altre card.
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: kNavy.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(12),
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (event.typeLabel != null && event.typeLabel!.isNotEmpty) ...[
-                      _TypeBadge(label: event.typeLabel!, type: event.type),
-                      const SizedBox(height: 8),
-                    ],
-                    Text(event.title, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 16)),
-                    const SizedBox(height: 6),
-                    if (event.startsAt != null)
-                      Row(children: [
-                        const Icon(Icons.event, size: 16),
-                        const SizedBox(width: 6),
-                        Expanded(child: Text(df.format(event.startsAt!))),
-                      ]),
-                    if (event.place != null) ...[
-                      const SizedBox(height: 4),
-                      Row(children: [
-                        const Icon(Icons.map_outlined, size: 16),
-                        const SizedBox(width: 6),
-                        Expanded(child: Text(event.place!, overflow: TextOverflow.ellipsis)),
-                      ]),
-                    ],
-                    if (event.location != null && event.location!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Row(children: [
-                        const Icon(Icons.place_outlined, size: 16),
-                        const SizedBox(width: 6),
-                        Expanded(child: Text(event.location!, overflow: TextOverflow.ellipsis)),
-                      ]),
-                    ],
+              child: const Icon(Icons.event, color: kNavy),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (event.typeLabel != null &&
+                      event.typeLabel!.isNotEmpty) ...[
+                    _TypeBadge(label: event.typeLabel!, type: event.type),
+                    const SizedBox(height: 8),
                   ],
-                ),
+                  Text(event.title,
+                      style: const TextStyle(
+                          color: kNavy,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16)),
+                  const SizedBox(height: 6),
+                  if (event.startsAt != null)
+                    Row(children: [
+                      const Icon(Icons.event, size: 16),
+                      const SizedBox(width: 6),
+                      Expanded(child: Text(df.format(event.startsAt!))),
+                    ]),
+                  if (event.place != null) ...[
+                    const SizedBox(height: 4),
+                    Row(children: [
+                      const Icon(Icons.map_outlined, size: 16),
+                      const SizedBox(width: 6),
+                      Expanded(
+                          child: Text(event.place!,
+                              overflow: TextOverflow.ellipsis)),
+                    ]),
+                  ],
+                  if (event.location != null && event.location!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Row(children: [
+                      const Icon(Icons.place_outlined, size: 16),
+                      const SizedBox(width: 6),
+                      Expanded(
+                          child: Text(event.location!,
+                              overflow: TextOverflow.ellipsis)),
+                    ]),
+                  ],
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

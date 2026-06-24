@@ -4,6 +4,7 @@ import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart
 
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/async_value_widget.dart';
+import '../../core/widgets/tap_card.dart';
 import 'provincial_section.dart';
 
 class ProvincialScreen extends ConsumerStatefulWidget {
@@ -68,36 +69,62 @@ class _ProvincialScreenState extends ConsumerState<ProvincialScreen> {
   }
 }
 
-/// Card espandibile: il titolo è sempre visibile, espandendola appare il
-/// contenuto rich-text (HTML) libero in grigio scuro.
-class _SectionCard extends StatelessWidget {
+/// Card espandibile (angoli vivi, ripple): il titolo è sempre visibile,
+/// espandendola appare il contenuto rich-text e si accende il bordino blu.
+class _SectionCard extends StatefulWidget {
   final ProvincialSection section;
   const _SectionCard({required this.section});
 
   @override
+  State<_SectionCard> createState() => _SectionCardState();
+}
+
+class _SectionCardState extends State<_SectionCard> {
+  bool _expanded = false;
+
+  @override
   Widget build(BuildContext context) {
+    final section = widget.section;
     final hasBody = section.body != null && section.body!.trim().isNotEmpty;
     return Card(
+      elevation: 3,
+      shadowColor: Colors.black54,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero), // angoli vivi
       clipBehavior: Clip.antiAlias,
-      child: Theme(
-        // Rimuove le righe divisorie di default dell'ExpansionTile dentro la card.
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          title: Text(section.name, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 16)),
-          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          expandedCrossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (hasBody)
-              HtmlWidget(
-                section.body!,
-                textStyle: const TextStyle(color: Color(0xFF424242), fontSize: 14, height: 1.45),
-              )
-            else
-              const Text('Nessuna informazione disponibile.',
-                  style: TextStyle(color: Color(0xFF757575), fontStyle: FontStyle.italic, fontSize: 13)),
-          ],
-        ),
+      child: Stack(
+        children: [
+          Theme(
+            // Rimuove le righe divisorie di default dell'ExpansionTile dentro la card.
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+            child: ExpansionTile(
+              onExpansionChanged: (v) => setState(() => _expanded = v),
+              title: Text(section.name, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 16)),
+              tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              expandedCrossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (hasBody)
+                  HtmlWidget(
+                    section.body!,
+                    textStyle: const TextStyle(color: Color(0xFF424242), fontSize: 14, height: 1.45),
+                  )
+                else
+                  const Text('Nessuna informazione disponibile.',
+                      style: TextStyle(color: Color(0xFF757575), fontStyle: FontStyle.italic, fontSize: 13)),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 0,
+            bottom: 0,
+            left: 0,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 120),
+              width: _expanded ? 4 : 0,
+              color: kCardActiveBorder,
+            ),
+          ),
+        ],
       ),
     );
   }

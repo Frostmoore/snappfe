@@ -104,10 +104,10 @@ class _SectionHeader extends StatelessWidget {
           ),
           if (hasDescription) ...[
             const SizedBox(height: 10),
-            Text(
-              group.description!,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade700, fontSize: 13.5, height: 1.45),
+            // Rich text centrato (wrappo in un div text-align:center).
+            HtmlWidget(
+              '<div style="text-align:center">${group.description!}</div>',
+              textStyle: TextStyle(color: Colors.grey.shade700, fontSize: 13.5, height: 1.45),
             ),
           ],
         ],

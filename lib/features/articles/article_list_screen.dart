@@ -4,6 +4,7 @@ import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/util/navigation.dart';
 import '../../core/widgets/async_value_widget.dart';
+import '../../core/widgets/tap_card.dart';
 import 'article.dart';
 
 class ArticleListScreen extends ConsumerStatefulWidget {
@@ -50,20 +51,25 @@ class _ArticleListScreenState extends ConsumerState<ArticleListScreen> {
     );
   }
 
-  Widget _buildBody(BuildContext context, PagedArticles state, ArticlesNotifier notifier) {
+  Widget _buildBody(
+      BuildContext context, PagedArticles state, ArticlesNotifier notifier) {
     // Primo caricamento
     if (state.loadingInitial) {
       return const Center(
-        child: Padding(padding: EdgeInsets.all(40), child: CircularProgressIndicator()),
+        child: Padding(
+            padding: EdgeInsets.all(40), child: CircularProgressIndicator()),
       );
     }
     // Errore sul primo caricamento (lista vuota)
     if (state.initialError != null && state.items.isEmpty) {
-      return ErrorView(message: state.initialError.toString(), onRetry: notifier.loadInitial);
+      return ErrorView(
+          message: state.initialError.toString(),
+          onRetry: notifier.loadInitial);
     }
     // Vuoto
     if (state.items.isEmpty) {
-      return EmptyView(widget.newsletters ? 'Nessuna newsletter.' : 'Nessun articolo.');
+      return EmptyView(
+          widget.newsletters ? 'Nessuna newsletter.' : 'Nessun articolo.');
     }
 
     // Lista con footer (loader / retry / fine elenco)
@@ -99,7 +105,11 @@ class _Footer extends StatelessWidget {
     if (state.loadingMore) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 20),
-        child: Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2.5))),
+        child: Center(
+            child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2.5))),
       );
     }
     if (state.moreError != null) {
@@ -118,7 +128,8 @@ class _Footer extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Center(
-          child: Text('Fine', style: TextStyle(color: Colors.grey.shade400, fontSize: 13)),
+          child: Text('Fine',
+              style: TextStyle(color: Colors.grey.shade400, fontSize: 13)),
         ),
       );
     }
@@ -132,49 +143,59 @@ class _ArticleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => pushWithRipple(context, '/articles/${article.id}'),
-        child: Row(
-          children: [
-            if (article.image != null)
-              CachedNetworkImage(
-                imageUrl: article.image!,
+    return TapCard(
+      onTap: () => pushWithRipple(context, '/articles/${article.id}'),
+      child: Row(
+        children: [
+          if (article.image != null)
+            CachedNetworkImage(
+              imageUrl: article.image!,
+              width: 100,
+              height: 104,
+              fit: BoxFit.cover,
+              memCacheWidth: 240,
+              placeholder: (_, __) => const SizedBox(
                 width: 100,
                 height: 104,
-                fit: BoxFit.cover,
-                memCacheWidth: 240,
-                placeholder: (_, __) => const SizedBox(
-                  width: 100,
-                  height: 104,
-                  child: Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))),
-                ),
-                errorWidget: (_, __, ___) => Container(
-                  width: 100,
-                  height: 104,
-                  color: Colors.grey.shade200,
-                  child: Icon(Icons.image_not_supported_outlined, color: Colors.grey.shade400),
-                ),
+                child: Center(
+                    child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2))),
               ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(article.title, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis),
-                    if (article.excerpt != null) ...[
-                      const SizedBox(height: 6),
-                      Text(article.excerpt!, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
-                    ],
-                  ],
-                ),
+              errorWidget: (_, __, ___) => Container(
+                width: 100,
+                height: 104,
+                color: Colors.grey.shade200,
+                child: Icon(Icons.image_not_supported_outlined,
+                    color: Colors.grey.shade400),
               ),
             ),
-          ],
-        ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(article.title,
+                      style: const TextStyle(
+                          color: kNavy, fontWeight: FontWeight.bold),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis),
+                  if (article.excerpt != null) ...[
+                    const SizedBox(height: 6),
+                    Text(article.excerpt!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            color: Colors.grey.shade700, fontSize: 13)),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

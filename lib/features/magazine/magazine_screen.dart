@@ -8,27 +8,43 @@ import '../../core/widgets/async_value_widget.dart';
 import '../../core/widgets/tap_card.dart';
 import 'magazine_issue.dart';
 
-class MagazineScreen extends ConsumerWidget {
+class MagazineScreen extends ConsumerStatefulWidget {
   const MagazineScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MagazineScreen> createState() => _MagazineScreenState();
+}
+
+class _MagazineScreenState extends ConsumerState<MagazineScreen> {
+  int? _selectedId; // card col bordino acceso (apre il browser → resta finché non tocco altrove)
+
+  @override
+  Widget build(BuildContext context) {
     final issues = ref.watch(magazineIssuesProvider);
     return Scaffold(
       appBar: AppBar(title: const Text("L'Agente di Assicurazione")),
-      body: RefreshIndicator(
-        onRefresh: () async => ref.invalidate(magazineIssuesProvider),
-        child: AsyncValueWidget<List<MagazineIssue>>(
-          value: issues,
-          onRetry: () => ref.invalidate(magazineIssuesProvider),
-          data: (items) => items.isEmpty
-              ? const EmptyView('Nessun numero disponibile.')
-              : ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: items.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (_, i) => _IssueCard(issue: items[i]),
-                ),
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => setState(() => _selectedId = null),
+        child: RefreshIndicator(
+          onRefresh: () async => ref.invalidate(magazineIssuesProvider),
+          child: AsyncValueWidget<List<MagazineIssue>>(
+            value: issues,
+            onRetry: () => ref.invalidate(magazineIssuesProvider),
+            data: (items) => items.isEmpty
+                ? const EmptyView('Nessun numero disponibile.')
+                : ListView.separated(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    itemCount: items.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (_, i) => _IssueCard(
+                      issue: items[i],
+                      selected: _selectedId == items[i].id,
+                      onSelect: () => setState(() => _selectedId = items[i].id),
+                    ),
+                  ),
+          ),
         ),
       ),
     );
@@ -37,12 +53,16 @@ class MagazineScreen extends ConsumerWidget {
 
 class _IssueCard extends StatelessWidget {
   final MagazineIssue issue;
-  const _IssueCard({required this.issue});
+  final bool selected;
+  final VoidCallback onSelect;
+  const _IssueCard({required this.issue, required this.selected, required this.onSelect});
 
   @override
   Widget build(BuildContext context) {
     return TapCard(
+      selected: selected,
       onTap: () async {
+        onSelect(); // accende il bordino (resta finché non tocco altrove)
         await launchUrl(Uri.parse(issue.url), mode: LaunchMode.externalApplication);
       },
       child: Row(

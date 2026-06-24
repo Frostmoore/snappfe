@@ -13,7 +13,8 @@ class TapCard extends StatefulWidget {
   final Widget child;
   final Future<void> Function() onTap;
   final bool? selected;
-  const TapCard({super.key, required this.child, required this.onTap, this.selected});
+  final Color? color;
+  const TapCard({super.key, required this.child, required this.onTap, this.selected, this.color});
 
   @override
   State<TapCard> createState() => _TapCardState();
@@ -40,6 +41,7 @@ class _TapCardState extends State<TapCard> {
     return Card(
       elevation: 3,
       shadowColor: Colors.black54,
+      color: widget.color,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero), // angoli vivi
       clipBehavior: Clip.antiAlias,
       child: InkWell(

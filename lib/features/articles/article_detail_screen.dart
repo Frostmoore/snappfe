@@ -55,6 +55,7 @@ class ArticleDetailScreen extends ConsumerWidget {
 }
 
 /// Pulsanti di condivisione del link (sito) sui social + copia link.
+/// Tutti su una riga; ogni pulsante ha la parte icona più chiara e il testo più scuro.
 class _ShareBar extends StatelessWidget {
   final String url;
   const _ShareBar({required this.url});
@@ -65,69 +66,96 @@ class _ShareBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enc = Uri.encodeComponent(url);
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
+    return Row(
       children: [
-        _ShareButton(
-          label: 'Facebook',
-          color: const Color(0xFF1877F2),
-          icon: const FaIcon(FontAwesomeIcons.facebookF, color: Colors.white, size: 18),
-          onTap: () => _open('https://www.facebook.com/sharer/sharer.php?u=$enc'),
+        Expanded(
+          child: _ShareButton(
+            label: 'Facebook',
+            color: const Color(0xFF1877F2),
+            icon: FontAwesomeIcons.facebookF,
+            onTap: () => _open('https://www.facebook.com/sharer/sharer.php?u=$enc'),
+          ),
         ),
-        _ShareButton(
-          label: 'LinkedIn',
-          color: const Color(0xFF0A66C2),
-          icon: const FaIcon(FontAwesomeIcons.linkedinIn, color: Colors.white, size: 18),
-          onTap: () => _open('https://www.linkedin.com/sharing/share-offsite/?url=$enc'),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _ShareButton(
+            label: 'LinkedIn',
+            color: const Color(0xFF0A66C2),
+            icon: FontAwesomeIcons.linkedinIn,
+            onTap: () => _open('https://www.linkedin.com/sharing/share-offsite/?url=$enc'),
+          ),
         ),
-        _ShareButton(
-          label: 'WhatsApp',
-          color: const Color(0xFF25D366),
-          icon: const FaIcon(FontAwesomeIcons.whatsapp, color: Colors.white, size: 20),
-          onTap: () => _open('https://wa.me/?text=$enc'),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _ShareButton(
+            label: 'WhatsApp',
+            color: const Color(0xFF25D366),
+            icon: FontAwesomeIcons.whatsapp,
+            onTap: () => _open('https://wa.me/?text=$enc'),
+          ),
         ),
-        _ShareButton(
-          label: 'Copia link',
-          color: kNavy,
-          icon: const Icon(Icons.link, color: Colors.white, size: 20),
-          onTap: () async {
-            await Clipboard.setData(ClipboardData(text: url));
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Link copiato negli appunti')),
-              );
-            }
-          },
+        const SizedBox(width: 8),
+        Expanded(
+          child: _ShareButton(
+            label: 'Copia',
+            color: kNavy,
+            icon: FontAwesomeIcons.link,
+            onTap: () async {
+              await Clipboard.setData(ClipboardData(text: url));
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Link copiato negli appunti')),
+                );
+              }
+            },
+          ),
         ),
       ],
     );
   }
 }
 
+/// Pulsante bicolore: riquadro icona (tono più chiaro) + area testo (tono più scuro).
 class _ShareButton extends StatelessWidget {
   final String label;
   final Color color;
-  final Widget icon;
+  final IconData icon;
   final VoidCallback onTap;
   const _ShareButton({required this.label, required this.color, required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: color,
+    final lighter = Color.lerp(color, Colors.white, 0.16)!;
+    final darker = Color.lerp(color, Colors.black, 0.16)!;
+    return ClipRRect(
       borderRadius: BorderRadius.circular(10),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Material(
+        color: darker,
+        child: InkWell(
+          onTap: onTap,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              icon,
-              const SizedBox(width: 10),
-              Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              Container(
+                width: 38,
+                height: 44,
+                color: lighter,
+                alignment: Alignment.center,
+                child: FaIcon(icon, color: Colors.white, size: 17),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

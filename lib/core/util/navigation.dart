@@ -1,9 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
-/// Naviga dopo un brevissimo ritardo, così il ripple del tap fa in tempo a
-/// mostrarsi prima che la transizione di pagina copra l'elemento toccato.
+/// Naviga dopo un brevissimo ritardo (così il bordino/ripple del tap fa in tempo
+/// a mostrarsi prima della transizione) e attende fino al ritorno (pop) dalla
+/// pagina di destinazione: chi chiama può tenere acceso il bordino nel frattempo.
 Future<void> pushWithRipple(BuildContext context, String route) async {
-  await Future<void>.delayed(const Duration(milliseconds: 160));
-  if (context.mounted) context.push(route);
+  await Future<void>.delayed(const Duration(milliseconds: 140));
+  if (context.mounted) await context.push(route);
 }

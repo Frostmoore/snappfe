@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 /// Colore del bordino sinistro che appare al tap (come le card della home).
 const Color kCardActiveBorder = Color(0xFF4594F5);
 
-/// Card con angoli vivi, ombra, ripple e bordino blu sinistro che compare al
-/// tap (poi esegue [onTap]). Stile uniforme con home e organigramma.
+/// Card con angoli vivi, ombra, ripple e bordino blu sinistro che resta acceso
+/// dal tap finché [onTap] (la navigazione) non completa. Stile uniforme con home
+/// e organigramma. [onTap] dovrebbe completare al ritorno dalla pagina (pop).
 class TapCard extends StatefulWidget {
   final Widget child;
-  final VoidCallback onTap;
+  final Future<void> Function() onTap;
   const TapCard({super.key, required this.child, required this.onTap});
 
   @override
@@ -18,12 +19,10 @@ class _TapCardState extends State<TapCard> {
   bool _active = false;
 
   Future<void> _handle() async {
+    // Il bordino resta acceso durante la navigazione e si spegne al ritorno.
     setState(() => _active = true);
-    // Lascia vedere bordo + ripple, poi esegue l'azione.
-    await Future.delayed(const Duration(milliseconds: 180));
-    if (!mounted) return;
-    widget.onTap();
-    setState(() => _active = false);
+    await widget.onTap();
+    if (mounted) setState(() => _active = false);
   }
 
   @override

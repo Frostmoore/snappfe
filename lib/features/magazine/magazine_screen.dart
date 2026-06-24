@@ -42,7 +42,9 @@ class _IssueCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TapCard(
-      onTap: () => launchUrl(Uri.parse(issue.url), mode: LaunchMode.externalApplication),
+      onTap: () async {
+        await launchUrl(Uri.parse(issue.url), mode: LaunchMode.externalApplication);
+      },
       child: Row(
         children: [
           // Copertina (o icona) a sinistra.

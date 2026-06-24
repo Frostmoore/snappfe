@@ -6,6 +6,8 @@ class OrgMember {
   final int id;
   final String name;
   final String? role;
+  final String? note; // testo libero sotto il ruolo
+  final String? link; // se valorizzato, il tap apre questo link
   final String? photo;
   final String? email;
 
@@ -13,6 +15,8 @@ class OrgMember {
     required this.id,
     required this.name,
     this.role,
+    this.note,
+    this.link,
     this.photo,
     this.email,
   });
@@ -21,6 +25,8 @@ class OrgMember {
         id: j['id'] as int,
         name: (j['name'] ?? '') as String,
         role: j['role'] as String?,
+        note: j['note'] as String?,
+        link: j['link'] as String?,
         photo: j['photo'] as String?,
         email: j['email'] as String?,
       );

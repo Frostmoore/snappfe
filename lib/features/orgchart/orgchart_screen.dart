@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/widgets/async_value_widget.dart';
 import 'org_member.dart';
@@ -115,9 +116,12 @@ class _MemberCardState extends State<_MemberCard> {
   bool _active = false;
 
   Future<void> _onTap() async {
+    // Il bordino resta acceso dopo il click.
     setState(() => _active = true);
-    await Future.delayed(const Duration(milliseconds: 200));
-    if (mounted) setState(() => _active = false);
+    final link = widget.member.link;
+    if (link != null && link.trim().isNotEmpty) {
+      await launchUrl(Uri.parse(link), mode: LaunchMode.externalApplication);
+    }
   }
 
   @override
@@ -159,6 +163,10 @@ class _MemberCardState extends State<_MemberCard> {
                           if (member.role != null && member.role!.isNotEmpty) ...[
                             const SizedBox(height: 3),
                             Text(member.role!, style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+                          ],
+                          if (member.note != null && member.note!.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(member.note!, style: TextStyle(color: Colors.grey.shade600, fontSize: 12.5, height: 1.35)),
                           ],
                         ],
                       ),

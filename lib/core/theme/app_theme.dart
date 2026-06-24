@@ -32,8 +32,10 @@ class AppTheme {
         titleTextStyle: TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 20),
       ),
       cardTheme: CardThemeData(
-        elevation: 0,
+        elevation: 3,
         color: Colors.white,
+        surfaceTintColor: Colors.white, // niente tinta M3: card bianche con ombra reale
+        shadowColor: Colors.black.withValues(alpha: 0.28),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         clipBehavior: Clip.antiAlias,
       ),

@@ -14,14 +14,6 @@ import 'reserved_tile.dart';
 class ReservedAreaScreen extends ConsumerWidget {
   const ReservedAreaScreen({super.key});
 
-  Color? _parseColor(String? hex) {
-    if (hex == null) return null;
-    var h = hex.replaceAll('#', '').trim();
-    if (h.length == 6) h = 'FF$h';
-    final v = int.tryParse(h, radix: 16);
-    return v == null ? null : Color(v);
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authControllerProvider).value;
@@ -102,18 +94,11 @@ class ReservedAreaScreen extends ConsumerWidget {
                     ),
                   )
                 else
-                  GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 1,
-                    children: items
-                        .map(
-                            (t) => _TileCard(tile: t, bg: _parseColor(t.color)))
-                        .toList(),
-                  ),
+                  for (final t in items)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _TileCard(tile: t),
+                    ),
               ],
             );
           },
@@ -125,51 +110,48 @@ class ReservedAreaScreen extends ConsumerWidget {
 
 class _TileCard extends StatelessWidget {
   final ReservedTile tile;
-  final Color? bg;
-  const _TileCard({required this.tile, this.bg});
+  const _TileCard({required this.tile});
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     return TapCard(
-      color: bg,
       onTap: () => pushWithRipple(context, '/reserved/tiles/${tile.id}'),
       child: Padding(
         padding: const EdgeInsets.all(14),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
           children: [
-            if (tile.icon != null)
-              CachedNetworkImage(
-                  imageUrl: tile.icon!,
-                  width: 48,
-                  height: 48,
-                  fit: BoxFit.contain)
-            else
-              Icon(Icons.folder_open,
-                  size: 44, color: bg != null ? Colors.white : cs.primary),
-            const SizedBox(height: 12),
-            Text(
-              tile.title,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: bg != null ? Colors.white : kNavy),
+            // Icona a sinistra (immagine custom o fallback).
+            SizedBox(
+              width: 48,
+              height: 48,
+              child: tile.icon != null
+                  ? CachedNetworkImage(imageUrl: tile.icon!, fit: BoxFit.contain)
+                  : const Icon(Icons.folder_open, size: 40, color: kNavy),
             ),
-            if (tile.subtitle != null && tile.subtitle!.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Text(
-                tile.subtitle!,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                    fontSize: 12,
-                    color: bg != null ? Colors.white70 : Colors.grey.shade600),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    tile.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  if (tile.subtitle != null && tile.subtitle!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      tile.subtitle!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                    ),
+                  ],
+                ],
               ),
-            ],
+            ),
           ],
         ),
       ),

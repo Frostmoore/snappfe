@@ -4,6 +4,7 @@ import '../../features/account/account_gate.dart';
 import '../../features/account/account_link_screen.dart';
 import '../../features/articles/article_detail_screen.dart';
 import '../../features/articles/article_list_screen.dart';
+import '../../features/documents/documents_screen.dart';
 import '../../features/auth/login_screen.dart';
 import '../../features/auth/register_screen.dart';
 import '../../features/auth/sna_login_screen.dart';
@@ -46,6 +47,7 @@ final goRouter = GoRouter(
     GoRoute(path: '/partners', builder: (c, s) => const PartnersScreen()),
     GoRoute(path: '/magazine', builder: (c, s) => const MagazineScreen()),
     GoRoute(path: '/orgchart', builder: (c, s) => const OrgChartScreen()),
+    GoRoute(path: '/documents', builder: (c, s) => const DocumentsScreen()),
 
     GoRoute(path: '/events', builder: (c, s) => const EventsScreen()),
     GoRoute(path: '/events/:id', builder: (c, s) => EventDetailScreen(id: _id(s))),

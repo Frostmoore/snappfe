@@ -20,30 +20,38 @@ import 'home_section.dart';
 // ---------------------------------------------------------------------------
 // Default per sezione (usati se l'admin non carica icona/colore custom)
 // ---------------------------------------------------------------------------
-IconData _defaultIcon(String route) => switch (route) {
-      '/newsletters' => Icons.mark_email_read_outlined,
-      '/articles' => Icons.article_outlined,
-      '/provincial' => Icons.location_on_outlined,
-      '/events' => Icons.event_outlined,
-      '/magazine' => Icons.menu_book_outlined,
-      '/orgchart' => Icons.account_tree_outlined,
-      '/partners' => Icons.handshake_outlined,
-      '/posts' => Icons.campaign_outlined,
-      '/account' => Icons.lock_outline,
-      _ => Icons.chevron_right,
-    };
+IconData _defaultIcon(String route) {
+  if (route.startsWith('http')) return Icons.open_in_new;
+  return switch (route) {
+    '/newsletters' => Icons.mark_email_read_outlined,
+    '/articles' => Icons.article_outlined,
+    '/provincial' => Icons.location_on_outlined,
+    '/events' => Icons.event_outlined,
+    '/magazine' => Icons.menu_book_outlined,
+    '/orgchart' => Icons.account_tree_outlined,
+    '/partners' => Icons.handshake_outlined,
+    '/posts' => Icons.campaign_outlined,
+    '/documents' => Icons.description_outlined,
+    '/account' => Icons.lock_outline,
+    _ => Icons.chevron_right,
+  };
+}
 
-Color _defaultColor(String route) => switch (route) {
-      '/newsletters' => const Color(0xFF0B3D66),
-      '/articles' => const Color(0xFF1565C0),
-      '/provincial' => const Color(0xFF00897B),
-      '/events' => const Color(0xFF2E7D32),
-      '/magazine' => const Color(0xFF6A1B9A),
-      '/orgchart' => const Color(0xFF455A64),
-      '/partners' => const Color(0xFFEF6C00),
-      '/posts' => const Color(0xFFC62828),
-      _ => const Color(0xFF0B3D66),
-    };
+Color _defaultColor(String route) {
+  if (route.startsWith('http')) return const Color(0xFF0B3D66);
+  return switch (route) {
+    '/newsletters' => const Color(0xFF0B3D66),
+    '/articles' => const Color(0xFF1565C0),
+    '/provincial' => const Color(0xFF00897B),
+    '/events' => const Color(0xFF2E7D32),
+    '/magazine' => const Color(0xFF6A1B9A),
+    '/orgchart' => const Color(0xFF455A64),
+    '/partners' => const Color(0xFFEF6C00),
+    '/posts' => const Color(0xFFC62828),
+    '/documents' => const Color(0xFF5D4037),
+    _ => const Color(0xFF0B3D66),
+  };
+}
 
 /// Box icona della sezione: icona custom (png/svg con tinta) o fallback Material.
 class _SectionIcon extends StatelessWidget {
@@ -203,10 +211,15 @@ class _HomeCardState extends State<_HomeCard> {
 
   Future<void> _onTap() async {
     setState(() => _active = true);
-    // Lascia vedere bordo + ripple, poi naviga.
+    // Lascia vedere bordo + ripple, poi naviga (o apre il link esterno).
     await Future.delayed(const Duration(milliseconds: 180));
     if (!mounted) return;
-    context.push(widget.route);
+    if (widget.route.startsWith('http')) {
+      final uri = Uri.tryParse(widget.route);
+      if (uri != null) await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      context.push(widget.route);
+    }
     setState(() => _active = false);
   }
 

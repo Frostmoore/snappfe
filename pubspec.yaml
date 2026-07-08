@@ -66,5 +66,36 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
 
+  # Generazione icona app e splash screen (build-time)
+  flutter_launcher_icons: ^0.14.1
+  flutter_native_splash: ^2.4.3
+
 flutter:
   uses-material-design: true
+
+# ---------------------------------------------------------------------------
+# Icona app: genera android/ios da un'immagine sorgente.
+# Comando: dart run flutter_launcher_icons
+# ---------------------------------------------------------------------------
+flutter_launcher_icons:
+  image_path: "assets/branding/icon.png"          # 1024x1024, SENZA trasparenza
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  # Icona adattiva Android (foreground trasparente + colore di sfondo)
+  adaptive_icon_background: "#FFFFFF"              # <-- colore sfondo icona (hex)
+  adaptive_icon_foreground: "assets/branding/icon_foreground.png"  # logo ~65% centrale, trasparente
+
+# ---------------------------------------------------------------------------
+# Splash screen: genera le risorse native.
+# Comando: dart run flutter_native_splash:create
+# ---------------------------------------------------------------------------
+flutter_native_splash:
+  color: "#FFFFFF"                                 # <-- colore sfondo splash (hex)
+  image: assets/branding/splash.png               # logo centrato, trasparente
+  android_12:
+    image: assets/branding/splash.png             # entro ~768x768 al centro
+    color: "#FFFFFF"
+  # Dark mode (opzionale): scommenta e aggiungi splash_dark.png
+  # color_dark: "#16205A"
+  # image_dark: assets/branding/splash_dark.png

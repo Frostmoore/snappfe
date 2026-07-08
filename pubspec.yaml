@@ -94,7 +94,7 @@ flutter_native_splash:
   color: "#FFFFFF"                                 # <-- colore sfondo splash (hex)
   image: assets/branding/splash.png               # logo centrato, trasparente
   android_12:
-    image: assets/branding/splash.png             # entro ~768x768 al centro
+    image: assets/branding/splash_android12.png   # logo più piccolo e centrato (cerchio Android 12)
     color: "#FFFFFF"
   # Dark mode (opzionale): scommenta e aggiungi splash_dark.png
   # color_dark: "#16205A"

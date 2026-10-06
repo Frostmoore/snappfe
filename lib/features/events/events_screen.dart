@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -298,68 +299,68 @@ class _EventCard extends StatelessWidget {
     final df = DateFormat('d MMM yyyy, HH:mm', 'it');
     return TapCard(
       onTap: () => pushWithRipple(context, '/events/${event.id}'),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Icona (niente copertina nella preview), come le altre card.
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: kNavy.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Locandina a tutta larghezza, mai ritagliata (proporzioni naturali).
+          if (event.cover != null)
+            CachedNetworkImage(
+              imageUrl: event.cover!,
+              fit: BoxFit.fitWidth,
+              memCacheWidth: 1080,
+              placeholder: (_, __) => const AspectRatio(
+                aspectRatio: 4 / 3,
+                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),
-              child: const Icon(Icons.event, color: kNavy),
+              errorWidget: (_, __, ___) => const SizedBox.shrink(),
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (event.typeLabel != null &&
-                      event.typeLabel!.isNotEmpty) ...[
-                    _TypeBadge(label: event.typeLabel!, type: event.type),
-                    const SizedBox(height: 8),
-                  ],
-                  Text(event.title,
-                      style: const TextStyle(
-                          color: kNavy,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16)),
-                  const SizedBox(height: 6),
-                  if (event.startsAt != null)
-                    Row(children: [
-                      const Icon(Icons.event, size: 16),
-                      const SizedBox(width: 6),
-                      Expanded(child: Text(df.format(event.startsAt!))),
-                    ]),
-                  if (event.place != null) ...[
-                    const SizedBox(height: 4),
-                    Row(children: [
-                      const Icon(Icons.map_outlined, size: 16),
-                      const SizedBox(width: 6),
-                      Expanded(
-                          child: Text(event.place!,
-                              overflow: TextOverflow.ellipsis)),
-                    ]),
-                  ],
-                  if (event.location != null && event.location!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Row(children: [
-                      const Icon(Icons.place_outlined, size: 16),
-                      const SizedBox(width: 6),
-                      Expanded(
-                          child: Text(event.location!,
-                              overflow: TextOverflow.ellipsis)),
-                    ]),
-                  ],
-                ],
-              ),
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Image.asset('assets/icons/inner/events.png', width: 44, height: 44),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (event.typeLabel != null && event.typeLabel!.isNotEmpty) ...[
+                        _TypeBadge(label: event.typeLabel!, type: event.type),
+                        const SizedBox(height: 8),
+                      ],
+                      Text(event.title,
+                          style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 16)),
+                      const SizedBox(height: 6),
+                      if (event.startsAt != null)
+                        Row(children: [
+                          const Icon(Icons.event, size: 16),
+                          const SizedBox(width: 6),
+                          Expanded(child: Text(df.format(event.startsAt!))),
+                        ]),
+                      if (event.place != null) ...[
+                        const SizedBox(height: 4),
+                        Row(children: [
+                          const Icon(Icons.map_outlined, size: 16),
+                          const SizedBox(width: 6),
+                          Expanded(child: Text(event.place!, overflow: TextOverflow.ellipsis)),
+                        ]),
+                      ],
+                      if (event.location != null && event.location!.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Row(children: [
+                          const Icon(Icons.place_outlined, size: 16),
+                          const SizedBox(width: 6),
+                          Expanded(child: Text(event.location!, overflow: TextOverflow.ellipsis)),
+                        ]),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

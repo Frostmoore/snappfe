@@ -75,6 +75,7 @@ class _IssueCard extends StatelessWidget {
                 ? CachedNetworkImage(
                     imageUrl: issue.cover!,
                     fit: BoxFit.cover,
+                    memCacheWidth: 216, // la copertina automatica può essere grande (1920px)
                     errorWidget: (_, __, ___) => Container(
                       color: Colors.grey.shade200,
                       child: const Icon(Icons.menu_book, color: kNavy),

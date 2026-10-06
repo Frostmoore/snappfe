@@ -7,7 +7,9 @@ class Partner {
   final String name;
   final String type; // convenzione | partner
   final String? logo;
-  final String? url;
+  final String? url; // sito web
+  final List<String> phones; // già divisi dal backend (campo libero "a / b")
+  final String? email;
   final String? description;
 
   Partner({
@@ -16,8 +18,12 @@ class Partner {
     required this.type,
     this.logo,
     this.url,
+    this.phones = const [],
+    this.email,
     this.description,
   });
+
+  bool get isConvenzione => type == 'convenzione';
 
   factory Partner.fromJson(Map<String, dynamic> j) => Partner(
         id: j['id'] as int,
@@ -25,6 +31,8 @@ class Partner {
         type: (j['type'] ?? 'partner') as String,
         logo: j['logo'] as String?,
         url: j['url'] as String?,
+        phones: (j['phones'] as List?)?.map((e) => e.toString()).toList() ?? const [],
+        email: j['email'] as String?,
         description: j['description'] as String?,
       );
 }

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -33,7 +34,16 @@ class ArticleDetailScreen extends ConsumerWidget {
               Text('di ${a.author}', style: TextStyle(color: Colors.grey.shade600)),
             ],
             const SizedBox(height: 12),
-            Text(stripHtml(a.content ?? a.excerpt), style: const TextStyle(fontSize: 16, height: 1.5)),
+            // HTML reso nativamente (paragrafi, elenchi, grassetti, immagini) dopo la
+            // pulizia: niente titolo ripetuto, icone Elementor o caratteri invisibili.
+            if (a.content != null)
+              HtmlWidget(
+                cleanArticleHtml(a.content),
+                textStyle: const TextStyle(fontSize: 16, height: 1.5),
+                onTapUrl: (url) => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
+              )
+            else
+              Text(a.excerpt ?? '', style: const TextStyle(fontSize: 16, height: 1.5)),
             if (a.link != null) ...[
               const SizedBox(height: 20),
               OutlinedButton.icon(

@@ -98,12 +98,7 @@ class _SectionCardState extends State<_SectionCard> {
             data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
             child: ExpansionTile(
               onExpansionChanged: (v) => setState(() => _expanded = v),
-              // Icona leading nello stile dell'organigramma (cerchio trasparente).
-              leading: const CircleAvatar(
-                radius: 22,
-                backgroundColor: Colors.transparent,
-                child: Icon(Icons.location_on_outlined, color: kNavy, size: 26),
-              ),
+              leading: Image.asset('assets/icons/inner/provincial.png', width: 32, height: 32),
               title: Text(section.name, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 16)),
               tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

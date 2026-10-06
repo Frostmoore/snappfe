@@ -84,7 +84,7 @@ class _ArticleListScreenState extends ConsumerState<ArticleListScreen> {
             : const SizedBox.shrink(),
         itemBuilder: (_, i) {
           if (i < state.items.length) {
-            return _ArticleCard(article: state.items[i]);
+            return _ArticleCard(article: state.items[i], newsletter: widget.newsletters);
           }
           return _Footer(state: state, onRetry: notifier.loadMore);
         },
@@ -137,9 +137,13 @@ class _Footer extends StatelessWidget {
   }
 }
 
+/// Segnaposto per le newsletter senza immagine in evidenza su WordPress.
+const _newsletterPlaceholder = 'assets/icons/home/newsletter.png';
+
 class _ArticleCard extends StatelessWidget {
   final Article article;
-  const _ArticleCard({required this.article});
+  final bool newsletter;
+  const _ArticleCard({required this.article, this.newsletter = false});
 
   @override
   Widget build(BuildContext context) {
@@ -147,6 +151,14 @@ class _ArticleCard extends StatelessWidget {
       onTap: () => pushWithRipple(context, '/articles/${article.id}'),
       child: Row(
         children: [
+          if (article.image == null && newsletter)
+            Container(
+              width: 100,
+              height: 104,
+              color: Colors.white,
+              padding: const EdgeInsets.all(18),
+              child: Image.asset(_newsletterPlaceholder, fit: BoxFit.contain),
+            ),
           if (article.image != null)
             CachedNetworkImage(
               imageUrl: article.image!,
@@ -178,6 +190,14 @@ class _ArticleCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (article.issueLabel != null) ...[
+                    Text(article.issueLabel!,
+                        style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 4),
+                  ],
                   Text(article.title,
                       style: const TextStyle(
                           color: kNavy, fontWeight: FontWeight.bold),

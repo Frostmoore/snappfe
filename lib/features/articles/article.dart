@@ -8,6 +8,8 @@ class Article {
   final int id;
   final String title;
   final String? excerpt;
+  /// Etichetta del numero di newsletter ("N. 20 del 7 settembre 2026"), se presente.
+  final String? issueLabel;
   final String? image;
   final String? link;
   final String? author;
@@ -19,6 +21,7 @@ class Article {
     required this.id,
     required this.title,
     this.excerpt,
+    this.issueLabel,
     this.image,
     this.link,
     this.author,
@@ -27,10 +30,17 @@ class Article {
     this.publishedAt,
   });
 
-  factory Article.fromJson(Map<String, dynamic> j) => Article(
+  factory Article.fromJson(Map<String, dynamic> j) {
+    final title = unescapeHtml((j['title'] ?? '') as String);
+    // L'estratto delle newsletter ripete "N. xx del …" + il titolo: li separo.
+    final excerpt = j['excerpt'] != null
+        ? splitNewsletterExcerpt(stripHtml(j['excerpt'] as String), title)
+        : null;
+    return Article(
         id: j['id'] as int,
-        title: unescapeHtml((j['title'] ?? '') as String),
-        excerpt: j['excerpt'] != null ? stripHtml(j['excerpt'] as String) : null,
+        title: title,
+        excerpt: (excerpt?.text.isNotEmpty ?? false) ? excerpt!.text : null,
+        issueLabel: excerpt?.label,
         image: j['image'] as String?,
         link: j['link'] as String?,
         author: j['author'] != null ? unescapeHtml(j['author'] as String) : null,
@@ -38,6 +48,7 @@ class Article {
         content: j['content'] as String?,
         publishedAt: j['published_at'] as String?,
       );
+  }
 }
 
 /// Stato di una lista paginata di articoli (infinite scroll).

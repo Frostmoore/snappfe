@@ -14,6 +14,7 @@ import '../../core/widgets/async_value_widget.dart';
 import '../app_settings/app_settings.dart';
 import '../auth/auth.dart';
 import '../partners/partner.dart';
+import '../partners/partners_screen.dart';
 import '../social/social_link.dart';
 import 'home_section.dart';
 
@@ -36,6 +37,28 @@ IconData _defaultIcon(String route) {
     _ => Icons.chevron_right,
   };
 }
+
+/// Icona impacchettata nell'app per la sezione (tessera completa: quadrato blu
+/// a gradiente + glifo bianco). Precedenza: icona caricata dal pannello > questa
+/// > icona Material di [_defaultIcon].
+String? _assetIcon(String route) {
+  if (route.startsWith('http')) {
+    final host = Uri.tryParse(route)?.host ?? '';
+    return host.contains('ebisep.it') ? 'assets/icons/home/ebisep.png' : null;
+  }
+  return switch (route) {
+    '/newsletters' => 'assets/icons/home/newsletter.png',
+    '/provincial' => 'assets/icons/home/provincial.png',
+    '/events' => 'assets/icons/home/events.png',
+    '/magazine' => 'assets/icons/home/magazine.png',
+    '/orgchart' => 'assets/icons/home/orgchart.png',
+    '/documents' => 'assets/icons/home/documents.png',
+    _ => null,
+  };
+}
+
+/// True se la sezione verrà disegnata con la tessera impacchettata.
+bool _usesAssetIcon(HomeSection s) => s.icon == null && _assetIcon(s.route) != null;
 
 Color _defaultColor(String route) {
   if (route.startsWith('http')) return const Color(0xFF0B3D66);
@@ -61,6 +84,10 @@ class _SectionIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Tessera già completa (sfondo + glifo): niente riquadro colorato attorno.
+    if (_usesAssetIcon(section)) {
+      return Image.asset(_assetIcon(section.route)!, width: size, height: size, filterQuality: FilterQuality.medium);
+    }
     final color = parseHexColor(section.backgroundColor) ?? _defaultColor(section.route);
     Widget inner;
     if (section.icon != null) {
@@ -319,6 +346,7 @@ class _WideCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = parseHexColor(section.backgroundColor) ?? _defaultColor(section.route);
+    final tile = _usesAssetIcon(section);
     return _HomeCard(
       route: section.route,
       child: SizedBox(
@@ -327,20 +355,24 @@ class _WideCard extends StatelessWidget {
           children: [
             Container(
               width: 96,
-              color: color.withValues(alpha: 0.12),
-              child: Center(child: _SectionIcon(section, size: 36)),
+              color: tile ? null : color.withValues(alpha: 0.12),
+              child: Center(child: _SectionIcon(section, size: tile ? 72 : 36)),
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(section.title, style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 18)),
+                    Text(
+                      section.title,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: kNavy, fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
                     if (section.subtitle != null) ...[
                       const SizedBox(height: 4),
-                      Text(section.subtitle!, style: TextStyle(color: Colors.grey.shade600)),
+                      Text(section.subtitle!, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade600)),
                     ],
                   ],
                 ),
@@ -357,7 +389,7 @@ class _WideCard extends StatelessWidget {
   }
 }
 
-/// Card a mezza larghezza, rettangolare: icona sopra, titolo sotto (a capo per
+/// Card a mezza larghezza, rettangolare: icona sopra, titolo sotto centrato (a capo per
 /// parole, mai troncato). Altezza pari nella coppia via IntrinsicHeight.
 class _HalfCard extends StatelessWidget {
   final HomeSection section;
@@ -367,16 +399,20 @@ class _HalfCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _HomeCard(
       route: section.route,
-      child: Padding(
+      // Larghezza piena: dentro lo Stack di _HomeCard la colonna si restringerebbe
+      // al contenuto e i titoli corti finirebbero a sinistra invece che al centro.
+      child: Container(
+        width: double.infinity,
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            _SectionIcon(section, size: 26),
+            _SectionIcon(section, size: _usesAssetIcon(section) ? 64 : 26),
             const SizedBox(height: 12),
             Text(
               section.title,
+              textAlign: TextAlign.center,
               style: const TextStyle(color: kNavy, fontWeight: FontWeight.w600, fontSize: 15),
               softWrap: true,
             ),
@@ -643,7 +679,7 @@ class _PartnerChip extends StatelessWidget {
         side: BorderSide(color: Colors.grey.shade200),
       ),
       child: InkWell(
-        onTap: partner.url != null ? () => launchUrl(Uri.parse(partner.url!), mode: LaunchMode.externalApplication) : null,
+        onTap: () => showPartnerSheet(context, partner),
         child: Container(
           width: 120,
           padding: const EdgeInsets.all(10),

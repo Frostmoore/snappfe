@@ -59,7 +59,6 @@ class _DocumentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasFile = document.url != null && document.url!.isNotEmpty;
-    final primary = Theme.of(context).colorScheme.primary;
     return TapCard(
       selected: selected,
       onTap: () async {
@@ -73,7 +72,7 @@ class _DocumentCard extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         child: Row(
           children: [
-            Icon(Icons.description_outlined, color: primary),
+            Image.asset('assets/icons/inner/documents.png', width: 32, height: 32),
             const SizedBox(width: 14),
             Expanded(
               child: Column(

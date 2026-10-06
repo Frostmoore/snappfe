@@ -72,6 +72,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    # Icone sezioni home (tessere complete) e icone "interno" delle sezioni.
+    - assets/icons/home/
+    - assets/icons/inner/
 
 # ---------------------------------------------------------------------------
 # Icona app: genera android/ios da un'immagine sorgente.

@@ -1,0 +1,2 @@
+# Script shell: sempre LF (con CRLF bash su macOS non parte)
+*.sh text eol=lf

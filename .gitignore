@@ -48,3 +48,6 @@ app.*.map.json
 /android/key.properties
 **/*.jks
 **/*.keystore
+
+# Output dello script tools/build_release_mac.sh (AAB, IPA, log)
+/release/

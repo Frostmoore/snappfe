@@ -88,16 +88,23 @@ fi
 
 # --- Aggiornamento del codice ---------------------------------------------------------
 say "Aggiornamento da GitHub"
-git fetch --quiet origin --prune || die "git fetch fallito (connessione?)"
+# L'elenco delle versioni si chiede DIRETTAMENTE a GitHub (ls-remote), non ai branch
+# che la copia locale conosce: una copia clonata con un solo branch
+# (git clone --branch X / --single-branch / --depth) con un semplice "git fetch"
+# vede solo quel branch e sceglierebbe sempre la versione vecchia.
+REMOTE_VERSIONS="$(git ls-remote --heads origin 'refs/heads/v*' </dev/null \
+  | sed -E 's#.*refs/heads/##' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$')" \
+  || die "Impossibile leggere le versioni da GitHub (connessione?)"
+[ -n "$REMOTE_VERSIONS" ] || die "Nessun branch di versione (vX.Y.Z) su GitHub"
 if [ -z "$REF" ]; then
-  # Branch vX.Y.Z → il più alto per numero (v1.10 > v1.9, non ordine alfabetico).
-  REF="$(git for-each-ref --format='%(refname:strip=3)' 'refs/remotes/origin/v*' \
-        | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
-        | sed 's/^v//' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1)"
-  [ -n "$REF" ] || die "Nessun branch di versione (vX.Y.Z) su GitHub"
-  REF="v$REF"
+  # Il più alto per numero (v1.10 > v1.9, non ordine alfabetico).
+  REF="v$(echo "$REMOTE_VERSIONS" | sed 's/^v//' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1)"
 fi
-git rev-parse --verify --quiet "origin/$REF" >/dev/null || die "La versione $REF non esiste su GitHub"
+echo "$REMOTE_VERSIONS" | grep -qx "$REF" || die "La versione $REF non esiste su GitHub"
+ok "Ultima versione su GitHub: $REF (versioni disponibili: $(echo "$REMOTE_VERSIONS" | tr '\n' ' '))"
+# Scarica esplicitamente quel branch, qualunque sia la configurazione del clone.
+git fetch --quiet origin "+refs/heads/$REF:refs/remotes/origin/$REF" </dev/null \
+  || die "Download della versione $REF fallito"
 
 PREV="$(git rev-parse --short HEAD)"
 # Le modifiche locali di configurazione (es. Team Apple nel progetto Xcode) vengono
@@ -122,6 +129,9 @@ if [ $STASHED -eq 1 ]; then
   fi
 fi
 [ $UPDATE_RC -eq 0 ] || die "Aggiornamento a $REF non riuscito (vedi messaggi sopra)"
+# Rete di sicurezza: mai compilare codice diverso dalla versione scelta.
+[ "$(git rev-parse HEAD)" = "$(git rev-parse "origin/$REF")" ] \
+  || die "Il codice locale non coincide con $REF su GitHub: aggiornamento non riuscito, build annullata"
 
 COMMIT="$(git rev-parse --short HEAD)"
 APP_VERSION="$(grep -E '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)"

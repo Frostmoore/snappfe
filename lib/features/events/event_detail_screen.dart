@@ -105,7 +105,7 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-/// Etichetta colorata del tipo di evento (Formativo/Politico/Altro).
+/// Etichetta colorata del tipo di evento (Formativo/Politico/Tecnico/Altro).
 class _TypeBadge extends StatelessWidget {
   final String label;
   final String? type;
@@ -117,6 +117,8 @@ class _TypeBadge extends StatelessWidget {
         return const Color(0xFF1E88E5);
       case 'politico':
         return const Color(0xFFE65100);
+      case 'tecnico':
+        return const Color(0xFF2E7D32);
       default:
         return const Color(0xFF607D8B);
     }

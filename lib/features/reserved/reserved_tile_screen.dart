@@ -46,7 +46,8 @@ class _ReservedTileScreenState extends ConsumerState<ReservedTileScreen> {
                 children: [
                   for (final section in tile.sections) ...[
                     Padding(
-                      padding: const EdgeInsets.only(top: 8, bottom: 8),
+                      // Più aria tra il titolo della sezione e la prima casella.
+                      padding: const EdgeInsets.only(top: 8, bottom: 16),
                       child: Text(section.title, style: const TextStyle(color: kNavy, fontSize: 18, fontWeight: FontWeight.bold)),
                     ),
                     if (section.elements.isEmpty)

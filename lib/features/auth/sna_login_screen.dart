@@ -65,7 +65,8 @@ class _SnaLoginScreenState extends ConsumerState<SnaLoginScreen> {
         children: [
           const SizedBox(height: 8),
           Text(
-            'Accedi con le credenziali del sito snaservice.it. Creeremo il tuo account '
+            'Usa le stesse credenziali (email o username e password) con cui accedi '
+            'all\'area riservata del sito snaservice.it. Creeremo il tuo account '
             'nell\'app collegandolo automaticamente al tuo profilo SNA.',
             style: TextStyle(color: Colors.grey.shade700, height: 1.5),
           ),

@@ -12,7 +12,8 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
-      scaffoldBackgroundColor: const Color(0xFFF6F7F9),
+      // Grigio leggermente più scuro (richiesta cliente): dà risalto alle card bianche.
+      scaffoldBackgroundColor: const Color(0xFFEDEFF2),
       // Ripple più visibile al tocco.
       splashColor: seed.withValues(alpha: 0.20),
       highlightColor: seed.withValues(alpha: 0.10),

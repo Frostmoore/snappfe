@@ -155,6 +155,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 8),
+          const _SnaCredentialsNote(),
           const SizedBox(height: 12),
           SizedBox(
             height: 52,
@@ -187,6 +189,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ],
         ],
       ),
+    );
+  }
+}
+
+/// Nota sotto "Accedi con SNA": le credenziali sono quelle dell'area riservata
+/// del sito (richiesta del cliente, per non lasciare dubbi).
+class _SnaCredentialsNote extends StatelessWidget {
+  const _SnaCredentialsNote();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(Icons.info_outline, size: 16, color: Colors.grey.shade600),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            "Usa le stesse credenziali (email o username e password) con cui accedi "
+            "all'area riservata del sito snaservice.it.",
+            style: TextStyle(color: Colors.grey.shade700, fontSize: 13, height: 1.4),
+          ),
+        ),
+      ],
     );
   }
 }
